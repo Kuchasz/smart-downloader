@@ -1,7 +1,9 @@
 # Tasks #
-All tasks needed for smart-downloader to work properly are listed below. Tasks are separated into two sections, for client and server applications.
+_All tasks needed for smart-downloader to work properly are listed below. Tasks are separated into two sections, for client and server applications._
 
 ## Client ##
+_All components used in UI should come from bootstrap library._
+
 **[UI] Status bar** - _Create UI representation for status bar in application_
 - all screen long
 - placed at the bottom of the screen
@@ -18,5 +20,10 @@ All tasks needed for smart-downloader to work properly are listed below. Tasks a
 - control should contain only predefined list of colors
 - no way to select custom color
 - prepare color pallet that will contain at least 10 colors
+
+-
+
+**[UI] Popup window** - _Prepare popup/flyout control_
+- some actions in application should be done with floating window, eg. adding account, adding files to queue, config settings
 
 ## Server ##
