@@ -45,6 +45,7 @@ _All components used in UI should come from bootstrap library. Keep english as m
 - transpile less to css
 - automatically watch for changes in file system
 - should be easy to install and run
+- provide minified bundle for release mode and source maps for development mode
  
 -
 
