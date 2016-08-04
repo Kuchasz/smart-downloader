@@ -1,0 +1,10 @@
+@import "variables";
+
+body {
+  background-color: $primary-color-darker;
+}
+
+h3, h2 {
+  color: $primary-color-lighter;
+  margin: $default-margin;
+}
