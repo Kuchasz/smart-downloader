@@ -42,7 +42,7 @@ _All components used in UI should come from bootstrap library. Keep english as m
 
 **[Core] Build system** - _Configure build system for js, css and html_
 - support for all main es6 features such as modules, promises
-- es5 browsers compatibility
+- es5 browsers compatibility, include polyfills
 - transpile scss to css
 - automatically watch for changes in file system
 - should be easy to install and run
