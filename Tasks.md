@@ -88,6 +88,15 @@ _All components used in UI should come from bootstrap library. Keep english as m
 - there is no way to add files to queue if status any of files is inavailable or unknown
 - sum of transfer needed to download all files
 
+-
+
+**[UI] Settings form** - _Create form for settings changes_
+- general tab content should be generated dynamically
+- fieldset bound to colletion of objects
+- input, checkbox, colorPicker, dropdown
+- tabs: general, accounts, users
+- appears in popup
+- buttons: 'save', 'cancel'
 
 
 ## Server ##
