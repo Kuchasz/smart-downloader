@@ -34,6 +34,7 @@ _All components used in UI should come from bootstrap library. Keep english as m
 - file name
 - progressbar which fill progress is equal to download progression, its color is equal to color assigned with account that is used for downloading particular file
 - checkbox for multiselection of items
+- delete item button
 - current download speed
 - estimated time for file to finnish download process (use timestamp, number of miliseconds from 01-01-1970 and humanize it with momentjs)
 
@@ -41,11 +42,12 @@ _All components used in UI should come from bootstrap library. Keep english as m
 
 **[Core] Build system** - _Configure build system for js, css and html_
 - support for all main es6 features such as modules, promises
-- es5 browsers compatibility
+- es5 browsers compatibility, include polyfills
 - transpile scss to css
 - automatically watch for changes in file system
 - should be easy to install and run
 - provide minified bundle for release mode and source maps for development mode
+- copy all assets files eg. .jpg, .png, .gif etc.
 
 -
 
@@ -61,6 +63,40 @@ _All components used in UI should come from bootstrap library. Keep english as m
 - consider implementing it as knockout component
 - should be easily scalable, look crisp and clear both as big and small
 - use html5 vector graphics apis (svg, css shapes)
+
+-
+
+**[Core] Domain communication** - _Create communication mechanism between server and client applications_
+- should be websocket based
+- easy to use
+- limit minimum code needed for each message
+- able to handle two way communication
+- ability to broadcast and send messages for particular user from domain
+
+-
+
+**[UI] Files adding form** - _Create form for adding new files to download_
+- use popup control
+- textarea with multiline support where urls will be pasted in
+- buttons: 'check', 'add', 'cancel'
+- list of evaluated files
+- status of file: available, inavailable, unknown
+- multiselect using checkboxes
+- delete item button
+- ability to choose which account should be used to download those files
+- name of file, file size, status
+- there is no way to add files to queue if status any of files is inavailable or unknown
+- sum of transfer needed to download all files
+
+-
+
+**[UI] Settings form** - _Create form for settings changes_
+- general tab content should be generated dynamically
+- fieldset bound to colletion of objects
+- input, checkbox, colorPicker, dropdown
+- tabs: general, accounts, users
+- appears in popup
+- buttons: 'save', 'cancel'
 
 
 ## Server ##
