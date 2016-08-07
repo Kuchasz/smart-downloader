@@ -107,3 +107,4 @@ _Server side application requirements_
 - resume download
 - exposes: download progress, download speed, file size
 - download one file with configurable number of concurrent connections
+- support for server that does not expose APIs for chunked downloading using legacy HTTP/1.0 without concurrent connections and pause/resume features
