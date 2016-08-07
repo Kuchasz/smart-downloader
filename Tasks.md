@@ -106,4 +106,4 @@ _Server side application requirements_
 - pause download
 - resume download
 - exposes: download progress, download speed, file size
-- set number of concurrent connections
+- download one file with configurable number of concurrent connections
