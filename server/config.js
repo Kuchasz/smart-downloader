@@ -1,8 +1,8 @@
 const config = {
   credentials:{
     rapidu: {
-      login: '[loginHere]',
-      password: '[passwordHere]'
+      login: 'Chickeno',
+      password: 'mckinley'
     }
   }
 }
