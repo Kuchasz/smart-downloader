@@ -100,3 +100,11 @@ _All components used in UI should come from bootstrap library. Keep english as m
 
 
 ## Server ##
+_Server side application requirements_
+
+**[Core] Downloading files** - _Create solution for chunked files downloading_
+- pause download
+- resume download
+- exposes: download progress, download speed, file size
+- download one file with configurable number of concurrent connections
+- support for server that does not expose APIs for chunked downloading using legacy HTTP/1.0 without concurrent connections and pause/resume features
