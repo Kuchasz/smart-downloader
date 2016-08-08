@@ -9,6 +9,10 @@ var fs = require('fs');
 var Rx = require('rxjs/Rx');
 var downloader = require('mt-downloader');
 var DownloadThread = require('./src/Downloader/Models/DownloadThread').DownloadThread;
+var down = require('./src/Downloader/Downloader').Downloader;
+
+const _down = new down();
+_down.list('../assets/storage/temp');
 
 let traffic = 0;
 
@@ -31,8 +35,8 @@ const io = new socketio(server);
 
 // getExpiration();
 
-const _url = 'http://movietrailers.apple.com/movies/universal/jasonbourne/jasonbourne-tlr1_h1080p.mov';
-// const _url = 'http://movietrailers.apple.com/movies/lionsgate/nerve/nerve-tlr2_h480p.mov';
+// const _url = 'http://movietrailers.apple.com/movies/universal/jasonbourne/jasonbourne-tlr1_h1080p.mov';
+const _url = 'http://movietrailers.apple.com/movies/lionsgate/nerve/nerve-tlr2_h480p.mov';
 // const _url = 'http://178.216.139.23:666/100MB.zip';
 // const _url = 'http://www.google.pl';
 
@@ -72,8 +76,6 @@ const getFile = (url, fd, start, end) => {
   return resp;
 };
 
-
-
 var createThreads = (amount, length, fd) => {
   const threads = [];
   const perThreadLength = Math.floor(length/amount);
@@ -84,7 +86,7 @@ var createThreads = (amount, length, fd) => {
 };
 
 const downloadFile = (url, uploader) => {
-  const _fileNName = `../assets/storage/temp/_${new Date().getTime()}_labo.sdc`;
+  const _fileNName = `../assets/storage/temp/_${new Date().getTime()}_labo.dmd`;
   return Rx.Observable
     .fromPromise(getFileLength(url))
     .mergeMap(length =>
@@ -98,8 +100,6 @@ const downloadFile = (url, uploader) => {
      .scan((l, r) => ({length: r.length, val: l.val + r.val}), {length: 0, val: 0})
      .map(x => Math.floor(x.val / x.length * 100))
      .distinctUntilChanged()
-    // .share();
-    // .subscribe(x => uploader.emit('download-progress', x));
 }
 
 var down = downloadFile(_url, {}).share();
