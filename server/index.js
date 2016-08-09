@@ -159,7 +159,8 @@ io.on('connection', (socket) => {
   console.log('a user connected');
 
   socket.on('download-file', (d)=>{
-    downloadFile(d, socket);
+    downloadFile(d, socket)
+    .subscribe(x => console.log(`${x}%`));
   });
 
   socket.on('disconnect', () => {

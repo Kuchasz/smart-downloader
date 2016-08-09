@@ -1,5 +1,6 @@
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const path = require('path');
 
 module.exports = {
   entry: './app.js',
@@ -17,6 +18,9 @@ module.exports = {
       {
         test: /\.js$/,
         loader: 'babel',
+        include: [
+          path.resolve(__dirname, 'src')
+        ],
         query: {
           presets: ['es2015']
         }

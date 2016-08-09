@@ -1,8 +1,8 @@
-import './src/styles/main.scss';
-import 'babel-polyfill';
+require('./src/styles/main.scss');
+require('babel-polyfill');
 import { Newbie } from './src/js/models/newbie';
 import './src/views/index.html';
-import * as ko from 'knockout';
+var ko = require('knockout');
 var Rx = require('rxjs/Rx');
 var io = require('socket.io-client');
 
@@ -37,6 +37,7 @@ ioo.on('connect', ()=>console.log('connected!'));
 
 // const iterator = fireUp();
 // for(let i=0; i<5; i++)setTimeout(()=>newBie.name('Tiffany ' + iterator.next().value), 1000*i);
+
 
 const newBie = {
   name: ko.observable('Julia'),
