@@ -109,6 +109,8 @@ _Server side application requirements_
 - download one file with configurable number of concurrent connections
 - support for server that does not expose APIs for chunked downloading using legacy HTTP/1.0 without concurrent connections and pause/resume features
 
+-
+
 **[Core] Data repositories** - _Create data storage service_
 - do not remove deprecated data, hide it instead
 - allow creating mocks
@@ -120,6 +122,8 @@ _Server side application requirements_
 -- find, query for all elements
 -- findAll, query for all elements even removed
 
+-
+
 **[Core] Download services** - _Create abstraction for downloading services_
 - allow multiple implementations
 - create common data structure for credentials
@@ -129,6 +133,8 @@ _Server side application requirements_
 - check number of days left until premium account expire
 - generate direct download link
 - check if direct download is turned on
+
+-
 
 **[Core] Data structures** - _Create base entity_
 - abstract identity type (guid or sequential number)
