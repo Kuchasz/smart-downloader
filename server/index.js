@@ -40,6 +40,9 @@ const _url = 'http://movietrailers.apple.com/movies/lionsgate/nerve/nerve-tlr2_h
 // const _url = 'http://178.216.139.23:666/100MB.zip';
 // const _url = 'http://www.google.pl';
 
+var httpService = _down.getFileInfo(_url);
+console.log(httpService);
+
 const getFileLength = (url) => (new Promise((res, rej)=>{
   const _req = http.request(url);
 
