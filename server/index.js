@@ -11,8 +11,8 @@ var downloader = require('mt-downloader');
 var DownloadThread = require('./src/Downloader/Models/DownloadThread').DownloadThread;
 var down = require('./src/Downloader/Downloader').Downloader;
 
-const _down = new down();
-_down.list('../assets/storage/temp');
+// const _down = new down();
+// _down.list('../assets/storage/temp');
 
 let traffic = 0;
 
@@ -36,12 +36,12 @@ const io = new socketio(server);
 // getExpiration();
 
 // const _url = 'http://movietrailers.apple.com/movies/universal/jasonbourne/jasonbourne-tlr1_h1080p.mov';
-const _url = 'http://movietrailers.apple.com/movies/lionsgate/nerve/nerve-tlr2_h480p.mov';
+// const _url = 'http://movietrailers.apple.com/movies/lionsgate/nerve/nerve-tlr2_h480p.mov';
 // const _url = 'http://178.216.139.23:666/100MB.zip';
 // const _url = 'http://www.google.pl';
 
-var httpService = _down.getFileInfo(_url);
-console.log(httpService);
+// var httpService = _down.getFileInfo(_url);
+// console.log(httpService);
 
 const getFileLength = (url) => (new Promise((res, rej)=>{
   const _req = http.request(url);
@@ -99,20 +99,20 @@ const downloadFile = (url, uploader) => {
       Rx.Observable.bindNodeCallback(fs.open)(_fileNName, 'w')
       .map(fd => ({fd, length})).take(1))
     .mergeMap(x => createThreads(5, x.length, x.fd).map(thread => ({length: x.length, thread})))
-    .mergeMap(t => getFile(_url, t.thread.fd, t.thread.start, t.thread.end).map(y => ({length: t.length, val: y})))
+    .mergeMap(t => getFile(url, t.thread.fd, t.thread.start, t.thread.end).map(y => ({length: t.length, val: y})))
      .scan((l, r) => ({length: r.length, val: l.val + r.val}), {length: 0, val: 0})
      .map(x => Math.floor(x.val / x.length * 100))
      .distinctUntilChanged()
 }
 
-var down = downloadFile(_url, {}).share();
-
-down
-  .subscribe(x => console.log(`${x}%`));
-
-down
-  .takeLast(1)
-  .subscribe(x => console.log(`Last strean: ${x}%`));
+// var down = downloadFile(_url, {}).share();
+//
+// down
+//   .subscribe(x => console.log(`${x}%`));
+//
+// down
+//   .takeLast(1)
+//   .subscribe(x => console.log(`Last strean: ${x}%`));
 
 
 // const downloadFile = (url, uploader) => {
@@ -160,7 +160,10 @@ io.on('connection', (socket) => {
 
   socket.on('download-file', (d)=>{
     downloadFile(d, socket)
-    .subscribe(x => console.log(`${x}%`));
+    .subscribe(x => {
+      console.log(x);
+      socket.emit('download-progress', x);
+    });
   });
 
   socket.on('disconnect', () => {

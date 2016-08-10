@@ -1,6 +1,8 @@
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const autoprefixer = require('autoprefixer');
 const path = require('path');
+const webpack = require('webpack');
 
 module.exports = {
   entry: './app.js',
@@ -13,26 +15,26 @@ module.exports = {
     loaders: [
       {
         test: /\.scss$/,
-        loader: ExtractTextPlugin.extract('style', 'css!sass')
+        loader: 'style!css!postcss!sass',
+        include: path.join(__dirname, 'src')
       },
       {
         test: /\.js$/,
         loader: 'babel',
-        include: [
-          path.resolve(__dirname, 'src')
-        ],
+        exclude: /node_modules/,
         query: {
           presets: ['es2015']
         }
       },
       {
         test: /\.html$/,
-        loader: 'html'
+        loader: 'html',
+        include: path.join(__dirname, 'src')
       }
     ]
   },
+  postcss: [autoprefixer()],
   plugins: [
-    new ExtractTextPlugin('[name].css'),
     new HtmlWebpackPlugin({
       template: './src/views/index.html'
     })

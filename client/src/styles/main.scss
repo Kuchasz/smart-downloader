@@ -3,6 +3,9 @@
 body {
   background-color: $primary-color-darker;
   padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
 }
 
 h3, h2 {
@@ -10,4 +13,15 @@ h3, h2 {
   margin: $default-margin;
   font-size: $default-margin;
   text-transform: uppercase;
+}
+
+.progress-bar{
+  align-self: stretch;
+  height: 10px;
+  background-color: $primary-color-lighter;
+  .tick{
+    width: 0%;
+    background-color: red;
+    height: 5px;
+  }
 }

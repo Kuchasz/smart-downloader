@@ -11,6 +11,10 @@
   <h1 data-bind="text: sex"></h1>
   <input data-bind="value: url" placeholder="Place url here"></input>
   <h3 data-bind="text: progress"></h3>
-  <button data-bind="click: download">DOWNLOAD!</button>
+  <h4>progress should be</h4>
+  <div class="progress-bar">
+    <div class="tick" data-bind="style: {'width': progress()+'%'}"></div>
+  </div>
+  <button data-bind="click: download">go!</button>
 </body>
 </html>
