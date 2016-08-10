@@ -93,10 +93,11 @@ const downloadFile = (url, uploader) => {
   return Rx.Observable
     .fromPromise(getFileLength(url))
     .mergeMap(length =>
-      Rx.Observable.bindNodeCallback(fs.writeFile)(_fileNName, Buffer.allocUnsafe(parseInt(length)), {})
+      Rx.Observable.bindNodeCallback(fs.writeFile)(_fileNName, Buffer.allocUnsafe(parseInt(1)), {})
       .map(x => length).take(1))
     .mergeMap((length) =>
       Rx.Observable.bindNodeCallback(fs.open)(_fileNName, 'w')
+      .do(fd => fs.ftruncateSync(fd, length))
       .map(fd => ({fd, length})).take(1))
     .mergeMap(x => createThreads(5, x.length, x.fd).map(thread => ({length: x.length, thread})))
     .mergeMap(t => getFile(url, t.thread.fd, t.thread.start, t.thread.end).map(y => ({length: t.length, val: y})))
@@ -159,10 +160,10 @@ io.on('connection', (socket) => {
   console.log('a user connected');
 
   socket.on('download-file', (d)=>{
-    downloadFile(d, socket)
+    downloadFile(d.url, socket)
     .subscribe(x => {
       console.log(x);
-      socket.emit('download-progress', x);
+      socket.emit('download-progress', {id: d.id, progress:x});
     });
   });
 

@@ -10,10 +10,12 @@
   <h1 data-bind="text: randomNumber"></h1>
   <h1 data-bind="text: sex"></h1>
   <input data-bind="value: url" placeholder="Place url here"></input>
-  <h3 data-bind="text: progress"></h3>
   <h4>progress should be</h4>
-  <div class="progress-bar">
-    <div class="tick" data-bind="style: {'width': progress()+'%'}"></div>
+  <div class="progress-bar-container" data-bind="foreach: filesProgress">
+    <span data-bind="text: id"></span>
+    <div class="progress-bar">
+      <div class="tick" data-bind="style: {'width': progress()+'%'}"></div>
+    </div>
   </div>
   <button data-bind="click: download">go!</button>
 </body>

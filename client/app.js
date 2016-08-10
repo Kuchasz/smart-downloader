@@ -28,6 +28,7 @@ function* fireUp(){
   yield 4;
   yield 5;
 }
+
 var ioo = io('http://localhost:3000');
 ioo.on('foo', (msg)=>console.log(msg));
 ioo.on('connect', ()=>console.log('connected!'));
@@ -35,21 +36,26 @@ ioo.on('connect', ()=>console.log('connected!'));
 const iterator = fireUp();
 for(let i=0; i<5; i++)setTimeout(()=>newBie.name('Tiffany ' + iterator.next().value), 1000*i);
 
-
 const newBie = {
   name: ko.observable('Julia'),
   age: ko.observable(22),
   randomNumber: ko.observable(0),
   sex: ko.observable('female'),
   url: ko.observable(),
-  progress: ko.observable(0),
+  filesProgress: ko.observableArray([]),
   download: function(){
-    ioo.emit('download-file', newBie.url())
+    const _progress = {
+      id: Math.random(),
+      progress: ko.observable(0)
+    };
+    newBie.filesProgress.push(_progress);
+    ioo.emit('download-file', {url: newBie.url(), id: _progress.id})
   }
 };
 
 ioo.on('download-progress', (progress)=>{
-  newBie.progress(progress);
+  const _progress = newBie.filesProgress().find(p=>p.id == progress.id);
+  _progress.progress(progress.progress);
 });
 
 ko.applyBindings(newBie);
