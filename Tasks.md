@@ -37,6 +37,7 @@ _All components used in UI should come from bootstrap library. Keep english as m
 - delete item button
 - current download speed
 - estimated time for file to finnish download process (use timestamp, number of miliseconds from 01-01-1970 and humanize it with momentjs)
+- button for direct download file from application-host-server
 
 -
 
@@ -98,6 +99,23 @@ _All components used in UI should come from bootstrap library. Keep english as m
 - appears in popup
 - buttons: 'save', 'cancel'
 
+-
+
+**[UI] Directory selector** - _Create control that will handle selection of target directory_
+- lists inner files and directories as list-items or tiles (ability to switch between those two)
+- displays name, last-modified-date (only in list mode)
+- breadcrumb feature that reflect directory structure
+- last item on breadcrumb should be current directory
+- each item of breadcrumb structure except last one should be navigatable
+
+-
+
+**[UI] File system manager** - _Create file manager control_
+- create directory
+- rename, move, delete file/directory
+- breadcrumbs feature (look at directory selector)
+- multiselect (for batch remove)
+
 
 ## Server ##
 _Server side application requirements_
@@ -143,3 +161,25 @@ _Server side application requirements_
 - modified date
 - modified by
 - base entity informations should be set automatically
+
+-
+
+**[API] Files structure** - _Create API for exploring files structure_
+- return files and directories inside passed directory
+- each returned item should contain: filename, type(directory or file), last-modified-date
+
+-
+
+**[API] Downloaded files** - _Create API for exploring downloading/downloaded files_
+- remove / remove multiple
+- remove with file remove
+- URLs availability check
+- add multiple URLs
+- collection of currently downloaded files
+- each file information contains(name, status, download percentage progress, current download speed, time left to download)
+
+-
+
+**[App] Download lifecycle** - _Create application running in background that will handle downloading of files_
+- start/pause particular downloads
+- notify connected clients about download progress and downloaded files changes (remove, add, download start, download end)
