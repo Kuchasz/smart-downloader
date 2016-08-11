@@ -35,7 +35,7 @@ const io = new socketio(server);
 
 // getExpiration();
 
-// const _url = 'http://movietrailers.apple.com/movies/universal/jasonbourne/jasonbourne-tlr1_h1080p.mov';
+const _url = 'http://movietrailers.apple.com/movies/universal/jasonbourne/jasonbourne-tlr1_h1080p.mov';
 // const _url = 'http://movietrailers.apple.com/movies/lionsgate/nerve/nerve-tlr2_h480p.mov';
 // const _url = 'http://178.216.139.23:666/100MB.zip';
 // const _url = 'http://www.google.pl';
@@ -67,7 +67,7 @@ const getFile = (url, fd, start, end) => {
   const msg = Rx.Observable.fromEvent(_req, 'response');
   const resp = msg.mergeMap(x => Rx.Observable.fromEvent(x, 'data'))
     .map(buffer => {
-      fs.write(fd, buffer, 0, buffer.length, _pos);
+      fs.write(fd, buffer, 0, buffer.length, _pos, (s,r)=>{console.log('write: ', r)});
       _pos += buffer.length;
       return buffer.length;
     })
@@ -90,23 +90,28 @@ var createThreads = (amount, length, fd) => {
 
 const downloadFile = (url, uploader) => {
   const _fileNName = `../assets/storage/temp/_${new Date().getTime()}_labo.dmd`;
-  return Rx.Observable
-    .fromPromise(getFileLength(url))
-    .mergeMap(length =>
-      Rx.Observable.bindNodeCallback(fs.writeFile)(_fileNName, Buffer.allocUnsafe(parseInt(1)), {})
-      .map(x => length).take(1))
-    .mergeMap((length) =>
-      Rx.Observable.bindNodeCallback(fs.open)(_fileNName, 'w')
-      .do(fd => fs.ftruncateSync(fd, length))
-      .map(fd => ({fd, length})).take(1))
-    .mergeMap(x => createThreads(5, x.length, x.fd).map(thread => ({length: x.length, thread})))
-    .mergeMap(t => getFile(url, t.thread.fd, t.thread.start, t.thread.end).map(y => ({length: t.length, val: y})))
-     .scan((l, r) => ({length: r.length, val: l.val + r.val}), {length: 0, val: 0})
-     .map(x => Math.floor(x.val / x.length * 100))
-     .distinctUntilChanged()
+  const gotFileLength = Rx.Observable.fromPromise(getFileLength(url)).share();
+  const initFile  = gotFileLength.mergeMap(length => Rx.Observable.bindNodeCallback(fs.writeFile)(_fileNName, Buffer.allocUnsafe(parseInt(1)), {}).map(x => length).take(1));
+  const fileOpen = initFile.mergeMap((length) => Rx.Observable.bindNodeCallback(fs.open)(_fileNName, 'w').do(fd => fs.ftruncateSync(fd, length)).map(fd => ({fd, length})).take(1));
+  const threadsCreated = fileOpen.mergeMap(x => createThreads(5, x.length, x.fd).map(thread => ({length: x.length, thread})));
+  const downloadBegin = threadsCreated.mergeMap(t => getFile(url, t.thread.fd, t.thread.start, t.thread.end).map(y => ({length: t.length, val: y})));
+  const downloadProgress = downloadBegin.scan((l, r) => ({length: r.length, val: l.val + r.val}), {length: 0, val: 0})
+    .map(x => Math.floor(x.val / x.length * 100))
+    .distinctUntilChanged();
+  const downloadEnd = downloadProgress.takeLast(1);
+  return { gotFileLength, initFile, fileOpen, threadsCreated, downloadBegin, downloadProgress, downloadEnd };
 }
 
-// var down = downloadFile(_url, {}).share();
+var down = downloadFile(_url, {});
+
+down.gotFileLength.subscribe((l)=>console.log(`file length: ${l}`));
+down.initFile.subscribe(()=>console.log('file initialized'));
+down.fileOpen.subscribe(()=>console.log('file opened'));
+down.threadsCreated.subscribe(()=>console.log('threads created'));
+// down.downloadBegin.subscribe(()=>console.log('downloader started'));
+down.downloadProgress.subscribe(()=>console.log('progress'));
+down.downloadEnd.subscribe(()=>console.log('download end'));
+
 //
 // down
 //   .subscribe(x => console.log(`${x}%`));

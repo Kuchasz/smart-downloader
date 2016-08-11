@@ -15,7 +15,7 @@ module.exports = {
     loaders: [
       {
         test: /\.scss$/,
-        loader: 'style!css!postcss!sass',
+        loader: ExtractTextPlugin.extract('style','!css!postcss!sass'),
         include: path.join(__dirname, 'src')
       },
       {
@@ -37,7 +37,8 @@ module.exports = {
   plugins: [
     new HtmlWebpackPlugin({
       template: './src/views/index.html'
-    })
+    }),
+    new ExtractTextPlugin('[name].css')
   ],
   resolve: {
     extensions: ['', '.js', '.scss', '.html']
