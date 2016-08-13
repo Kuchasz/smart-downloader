@@ -99,18 +99,18 @@ const downloadFile = (url, uploader) => {
     .map(x => Math.floor(x.val / x.length * 100))
     .distinctUntilChanged();
   const downloadEnd = downloadProgress.takeLast(1);
-  return { gotFileLength, initFile, fileOpen, threadsCreated, downloadBegin, downloadProgress, downloadEnd };
+  return gotFileLength.merge(initFile.merge(fileOpen.merge(threadsCreated.merge(downloadBegin.merge(downloadProgress.merge(downloadEnd))))));
 }
 
-var down = downloadFile(_url, {});
+var down = downloadFile(_url, {}).subscribe(x=>console.log(x));
 
-down.gotFileLength.subscribe((l)=>console.log(`file length: ${l}`));
-down.initFile.subscribe(()=>console.log('file initialized'));
-down.fileOpen.subscribe(()=>console.log('file opened'));
-down.threadsCreated.subscribe(()=>console.log('threads created'));
-// down.downloadBegin.subscribe(()=>console.log('downloader started'));
-down.downloadProgress.subscribe(()=>console.log('progress'));
-down.downloadEnd.subscribe(()=>console.log('download end'));
+// down.gotFileLength.subscribe((l)=>console.log(`file length: ${l}`));
+// down.initFile.subscribe(()=>console.log('file initialized'));
+// down.fileOpen.subscribe(()=>console.log('file opened'));
+// down.threadsCreated.subscribe(()=>console.log('threads created'));
+// // down.downloadBegin.subscribe(()=>console.log('downloader started'));
+// down.downloadProgress.subscribe(()=>console.log('progress'));
+// down.downloadEnd.subscribe(()=>console.log('download end'));
 
 //
 // down

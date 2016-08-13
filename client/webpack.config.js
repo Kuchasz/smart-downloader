@@ -5,7 +5,7 @@ const path = require('path');
 const webpack = require('webpack');
 
 module.exports = {
-  entry: './app.js',
+  entry: './app.jsx',
   output:{
     path: './build',
     filename: 'bundle.js'
@@ -19,11 +19,19 @@ module.exports = {
         include: path.join(__dirname, 'src')
       },
       {
-        test: /\.js$/,
+        test: /(\.js)$/,
         loader: 'babel',
         exclude: /node_modules/,
         query: {
           presets: ['es2015']
+        }
+      },
+      {
+        test: /(\.jsx)$/,
+        loader: 'babel',
+        exclude: /node_modules/,
+        query: {
+          presets: ['es2015', 'react']
         }
       },
       {
