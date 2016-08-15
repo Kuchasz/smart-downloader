@@ -10,7 +10,6 @@ import {createStore, combineReducers} from 'redux';
 import {Accounts} from './src/js/Data/Accounts.js';
 import {Files} from './src/js/Data/Files.js';
 
-import {Incrementer} from './src/views/Incrementer.jsx';
 import {AccountList} from './src/views/Accounts/AccountList.jsx';
 import {FileList} from './src/views/Files/FileList.jsx';
 import {FileControls} from './src/views/Files/FileControls.jsx';
