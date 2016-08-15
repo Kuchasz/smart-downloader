@@ -71,7 +71,8 @@ const files = [{
   speed: parseFloat(Math.random()*10).toFixed(2),
   estimatedTime: '0:24:20',
   progress: Math.floor(Math.random()*100),
-  selected: Math.random()>0.5
+  selected: Math.random()>0.5,
+  account: chickens[1]
 },
 {
   id: 1,
@@ -80,7 +81,8 @@ const files = [{
   speed: 0,
   estimatedTime: '0:00:00',
   progress: 100,
-  selected: Math.random()>0.5
+  selected: Math.random()>0.5,
+  account: chickens[0]
 },
 {
   id: 2,
@@ -89,7 +91,8 @@ const files = [{
   speed: 0,
   estimatedTime: '0:00:00',
   progress: 0,
-  selected: Math.random()>0.5
+  selected: Math.random()>0.5,
+  account: chickens[0]
 },
 {
   id: 3,
@@ -98,7 +101,8 @@ const files = [{
   speed: 0,
   estimatedTime: '0:00:00',
   progress: 23,
-  selected: Math.random()>0.5
+  selected: Math.random()>0.5,
+  account: chickens[1]
 },
 {
   id: 4,
@@ -107,7 +111,8 @@ const files = [{
   speed: parseFloat(Math.random()*10).toFixed(2),
   estimatedTime: '0:33:10',
   progress: Math.floor(Math.random()*100),
-  selected: Math.random()>0.5
+  selected: Math.random()>0.5,
+  account: chickens[0]
 }];
 
   ReactDOM.render(

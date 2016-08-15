@@ -8,7 +8,7 @@ export class File extends React.Component {
         <td><span className={this.props.status}>{this.props.status}</span></td>
         <td>{this.props.speed} Mb/s</td>
         <td>{this.props.estimatedTime}</td>
-        <td><div className="progressBar"><div style={{width: this.props.progress + '%'}}></div></div></td>
+        <td><div className="progressBar"><div style={{width: this.props.progress + '%', background: this.props.account.color}}></div></div></td>
     </tr>;
 }
 }
