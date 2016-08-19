@@ -6,6 +6,7 @@ var io = require('socket.io-client');
 import ReactDOM from 'react-dom';
 import React from 'react';
 import {createStore, combineReducers} from 'redux';
+import {Provider} from 'react-redux';
 
 import {Accounts} from './src/js/Data/Accounts.js';
 import {Files} from './src/js/Data/Files.js';
@@ -16,6 +17,13 @@ import {FileControls} from './src/views/Files/FileControls.jsx';
 import {Header} from './src/views/Header/Header.jsx';
 import {PopupsContainer} from './src/views/Popups/PopupsContainer.jsx';
 
+import {Files as FilesReducers} from './src/js/Reducers/Files.js';
+
+const reducers = combineReducers({files: FilesReducers});
+
+const store = createStore(reducers);
+console.log(store);
+
 setInterval(()=>{
 
   ReactDOM.render(
@@ -24,12 +32,16 @@ setInterval(()=>{
   );
 
   ReactDOM.render(
-    <FileList files={Files()}/>,
+    <Provider store={store}>
+      <FileList files={Files()}/>
+    </Provider>,
     document.getElementById('files-list')
   );
 
   ReactDOM.render(
-    <FileControls/>,
+    <Provider store={store}>
+      <FileControls/>
+    </Provider>,
     document.getElementById('files-controls')
   );
 

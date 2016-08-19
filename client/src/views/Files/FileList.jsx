@@ -1,7 +1,8 @@
 import React from 'react'
 import {File} from './File.jsx';
+import {connect} from 'react-redux';
 
-export class FileList extends React.Component {
+class FileListComponent extends React.Component {
   render (){
     return <table>
           <thead>
@@ -20,3 +21,7 @@ export class FileList extends React.Component {
       </table>;
   }
 }
+
+export const FileList = connect(state =>({
+  files: state.files
+}))(FileListComponent);

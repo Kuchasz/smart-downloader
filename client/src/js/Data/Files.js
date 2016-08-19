@@ -1,52 +1,38 @@
 import {Accounts} from './Accounts';
+const accs = Accounts();
 
-export const Files = () => { const accs = Accounts(); return [{
-  id: 0,
-  fileName: 'another-brick-in-the-wall(anniversary-version).raw',
-  status: 'progress',
+const _words = ['allies', 'youtube', 'yellow', 'dragon', 'bone', 'cpu', 'kylio', 'travis', 'react', 'brother', 'wedding', 'photo', 'video', 'lopez', 'diary'];
+const _statuses = ['progress', 'finished', 'waiting', 'canceled'];
+const _randomWord = () => _words[Math.floor(Math.random()*_words.length)];
+const _randomFileName = () => {
+    const _length = Math.floor(Math.random()*_words.length)+1;
+    var _fileName = '.jpg';
+    for (let i=0; i<_length; i++) _fileName = `${_randomWord()}-${_fileName}`;
+    return _fileName;
+}
+const _randomAccount = () => accs[Math.floor(Math.random()*accs.length)];
+const _randomStatus = () => _statuses[Math.floor(Math.random()*_statuses.length)];
+
+export const CreateFile = () => ({
+  id: Math.floor(Math.random()*10000),
+  fileName: _randomFileName(),
+  status: _randomStatus(),
   speed: parseFloat(Math.random()*10).toFixed(2),
-  estimatedTime: '0:24:20',
+  estimatedTime: `${Math.floor(Math.random()*24)}:${Math.floor(Math.random()*60)}:${Math.floor(Math.random()*60)}`,
   progress: Math.floor(Math.random()*100),
   selected: Math.random()>0.5,
-  account: accs[1]
-},
-{
-  id: 1,
-  fileName: 'mamma-mia-dvdrip-eurovision.mkv',
-  status: 'finished',
-  speed: 0,
-  estimatedTime: '0:00:00',
-  progress: 100,
-  selected: Math.random()>0.5,
-  account: accs[0]
-},
-{
-  id: 2,
-  fileName: 'arhn-eu-nice_by_mikke22.mkv',
-  status: 'waiting',
-  speed: 0,
-  estimatedTime: '0:00:00',
-  progress: 0,
-  selected: Math.random()>0.5,
-  account: accs[0]
-},
-{
-  id: 3,
-  fileName: 'promise-and-promise.mp4',
-  status: 'canceled',
-  speed: 0,
-  estimatedTime: '0:00:00',
-  progress: 23,
-  selected: Math.random()>0.5,
-  account: accs[1]
-},
-{
-  id: 4,
-  fileName: 'herodThe-billionaire-midas.rar',
-  status: 'progress',
-  speed: parseFloat(Math.random()*10).toFixed(2),
-  estimatedTime: '0:33:10',
-  progress: Math.floor(Math.random()*100),
-  selected: Math.random()>0.5,
-  account: accs[0]
-}]};
+  account: _randomAccount()
+});
+
+
+
+export const Files = () => [
+  CreateFile(),
+  CreateFile(),
+  CreateFile(),
+  CreateFile(),
+  CreateFile(),
+  CreateFile(),
+  CreateFile(),
+  CreateFile()
+];
