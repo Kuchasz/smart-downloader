@@ -24,7 +24,7 @@ const reducers = combineReducers({files: FilesReducers});
 const store = createStore(reducers);
 console.log(store);
 
-setInterval(()=>{
+// setInterval(()=>{
 
   ReactDOM.render(
     <AccountList accounts={Accounts()}/>,
@@ -33,7 +33,7 @@ setInterval(()=>{
 
   ReactDOM.render(
     <Provider store={store}>
-      <FileList files={Files()}/>
+      <FileList/>
     </Provider>,
     document.getElementById('files-list')
   );
@@ -50,7 +50,7 @@ setInterval(()=>{
     document.getElementById('header')
   );
 
-}, 1000);
+// }, 1000);
 
 
 // store.subscribe(render);
