@@ -2,91 +2,59 @@ import './src/styles/main.scss';
 import './src/views/index.html';
 
 import {Observable} from 'rxjs';
-// Rx.Observable.from([0, 1, 2, 3])
-//   .subscribe(x=>console.log(x));
+import {createStore, combineReducers} from 'redux';
+import {render} from 'react-dom';
+import * as React from 'react';
+import {Provider} from 'react-redux';
 
-// import 'rxjs/add/Observable';
-// import { Observable } from 'rxjs/Observable';
+import {Accounts} from './src/ts/Data/Accounts';
+import {Files} from './src/ts/Data/Files';
 
-// require<any>('rxjs/add/operator/from');
+import {default as FileActions} from './src/ts/Actions/File';
 
-// Observable.from([0, 1, 2, 3, 4, 5])
-//   .subscribe(v=>console.log(v));
+import {AccountList} from './src/views/Accounts/AccountList';
+import {FileList} from './src/views/Files/FileList';
+import {FileControls} from './src/views/Files/FileControls';
+import {Header} from './src/views/Header/Header';
+import {PopupsContainer} from './src/views/Popups/PopupsContainer';
 
-// import {Accounts} from "./src/ts/Data/Accounts";
-// import * as Rx from "rxjs";
-// import * as io from "socket.io-client";
-// import { render } from "react-dom";
-// import * as React from 'react';
-// import * as Redux from 'redux';
-// import {Provider} from 'react-redux';
-// Observable.fromEvent({}, 'adaw');
+import {Files as FilesReducers} from './src/ts/Reducers/Files';
 
-// var fff = Accounts();
-//
-// console.log(fff);
+const reducers = combineReducers({files: FilesReducers});
 
-const clickerButton = document.querySelector('#button');
-//
-// Observable.from([0, 1, 2, 3, 4, 5])
-//   .subscribe(x=>console.log(x));
+const store = createStore(reducers);
 
-Observable.fromEvent(clickerButton, 'click', (e: MouseEvent)=>{
-  return {x: e.clientX, y: e.clientY};
-}).subscribe(e=>console.log(e));
+render(
+  <AccountList accounts={Accounts()}/>,
+  document.getElementById('accounts-list')
+);
 
-// Observable.fromEvent<MouseEvent, number>(clickerButton, 'click', (...args)=>{
-//   console.log(args);
-//   return 0;
-// });
+render(
+  <Provider store={store}>
+    <FileList/>
+  </Provider>,
+  document.getElementById('files-list')
+);
 
-// Rxjs.Observable.fromEvent<number>(en, 'click', ())
+render(
+  <Provider store={store}>
+    <FileControls/>
+  </Provider>,
+  document.getElementById('files-controls')
+);
 
+render(
+  <Header/>,
+  document.getElementById('header')
+);
 
-// Rx.Observable.fromEvent<MouseEvent>(en, 'click');
+const pushRandom = () => {
+  const _timeout = Math.random()*2000;
+  store.dispatch(FileActions.UpdateFiles());
+  setTimeout(pushRandom, _timeout);
+};
 
-// import {Accounts} from './src/js/Data/Accounts';
-// import {Files} from './src/js/Data/Files';
-//
-// import {AccountList} from './src/views/Accounts/AccountList';
-// import {FileList} from './src/views/Files/FileList';
-// import {FileControls} from './src/views/Files/FileControls';
-// import {Header} from './src/views/Header/Header';
-// import {PopupsContainer} from './src/views/Popups/PopupsContainer';
-//
-// import {Files as FilesReducers} from './src/js/Reducers/Files';
-//
-// const reducers = combineReducers({files: FilesReducers});
-//
-// const store = createStore(reducers);
-// console.log(store);
-//
-// ReactDOM.render(
-//   <AccountList accounts={Accounts()}/>,
-//   document.getElementById('accounts-list')
-// );
-//
-// ReactDOM.render(
-//   <Provider store={store}>
-//     <FileList/>
-//   </Provider>,
-//   document.getElementById('files-list')
-// );
-//
-// ReactDOM.render(
-//   <Provider store={store}>
-//     <FileControls/>
-//   </Provider>,
-//   document.getElementById('files-controls')
-// );
-//
-// ReactDOM.render(
-//   <Header/>,
-//   document.getElementById('header')
-// );
-
-
-// store.subscribe(render);
+pushRandom();
 
 // var ioo = io('http://localhost:3000');
 // ioo.on('foo', (msg)=>console.log(msg));
@@ -101,5 +69,3 @@ Observable.fromEvent(clickerButton, 'click', (e: MouseEvent)=>{
 //   const _progress = newBie.filesProgress().find(p=>p.id == progress.id);
 //   _progress.progress(progress.progress);
 // });
-
-// ko.applyBindings(newBie);
