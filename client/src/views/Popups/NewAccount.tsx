@@ -1,5 +1,6 @@
-import React from 'react';
-export class NewAccount extends React.Component {
+import * as React from 'react';
+
+export class NewAccount extends React.Component<any, any> {
   render () {
     return <div className="newForm">
       <form>

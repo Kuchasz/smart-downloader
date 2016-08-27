@@ -5,7 +5,7 @@ const path = require('path');
 const webpack = require('webpack');
 
 module.exports = {
-  entry: './app.jsx',
+  entry: './app.tsx',
   output:{
     path: './build',
     filename: 'bundle.js'
@@ -19,25 +19,21 @@ module.exports = {
         include: path.join(__dirname, 'src')
       },
       {
-        test: /(\.js)$/,
-        loader: 'babel',
-        exclude: /node_modules/,
-        query: {
-          presets: ['es2015', 'stage-2']
-        }
-      },
-      {
-        test: /(\.jsx)$/,
-        loader: 'babel',
-        exclude: /node_modules/,
-        query: {
-          presets: ['es2015', 'react', 'stage-2']
-        }
+        test: /\.ts(x?)$/,
+        loader: 'ts-loader',
+        exclude: /node_modules/
       },
       {
         test: /\.html$/,
         loader: 'html',
         include: path.join(__dirname, 'src')
+      },
+      {
+        test: /\.js/,
+        loader: 'babel',
+        query: {
+          presets: ['es2015']
+        }
       }
     ]
   },
@@ -49,6 +45,7 @@ module.exports = {
     new ExtractTextPlugin('[name].css')
   ],
   resolve: {
-    extensions: ['', '.js', '.scss', '.html']
+    extensions: ['', '.ts', '.tsx', '.scss', '.html', '.js'],
+    modulesDirectories: ['src', 'node_modules']
   }
 }

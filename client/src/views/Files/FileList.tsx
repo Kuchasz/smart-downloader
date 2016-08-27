@@ -1,8 +1,8 @@
-import React from 'react'
-import {File} from './File.jsx';
+import * as React from 'react'
+import {File} from './File';
 import {connect} from 'react-redux';
 
-class FileListComponent extends React.Component {
+class FileListComponent extends React.Component<any, any> {
   render (){
     return <table>
           <thead>

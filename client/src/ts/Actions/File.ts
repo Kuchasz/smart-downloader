@@ -5,6 +5,6 @@ export default {
   }),
   RemoveFile: (fileId)=>({
     type: 'REMOVE_FILE',
-    tileId
+    fileId
   })
 };

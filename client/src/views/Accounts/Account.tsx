@@ -1,6 +1,6 @@
-import React from 'react';
+import * as React from 'react';
 
-export class Account extends React.Component{
+export class Account extends React.Component<any, any>{
   render(){
     return <div className="account">
       <h2>{this.props.nick}</h2>

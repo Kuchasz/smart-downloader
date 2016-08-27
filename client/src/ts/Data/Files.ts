@@ -17,7 +17,7 @@ export const CreateFile = () => ({
   id: Math.floor(Math.random()*10000),
   fileName: _randomFileName(),
   status: _randomStatus(),
-  speed: parseFloat(Math.random()*10).toFixed(2),
+  speed: (Math.random()*10).toFixed(2),
   estimatedTime: `${Math.floor(Math.random()*24)}:${Math.floor(Math.random()*60)}:${Math.floor(Math.random()*60)}`,
   progress: Math.floor(Math.random()*100),
   selected: Math.random()>0.5,

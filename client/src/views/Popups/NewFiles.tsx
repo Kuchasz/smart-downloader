@@ -1,5 +1,6 @@
-import React from 'react'
-export class NewFiles extends React.Component {
+import * as React from 'react'
+
+export class NewFiles extends React.Component<any, any> {
   render () {
     return   <div className="newFiles">
       <form className="addition">
