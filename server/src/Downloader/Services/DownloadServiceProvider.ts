@@ -1,4 +1,4 @@
-const UrlNotSupportedException = require('../Exceptions/UrlNotSupportedException');
+import {UrlNotSupportedException} from "../Exceptions/UrlNotSupportedException";
 
 const serviceProviders = [
   {
@@ -10,10 +10,8 @@ const serviceProviders = [
     service: require('https')
   }];
 
-const getDownloadService = (url) => {
+export const getDownloadService = (url) => {
     const serviceProvider = serviceProviders.find(s => s.regExp.test(url));
     if(!serviceProvider) throw new UrlNotSupportedException();
     return serviceProvider.service;
 }
-
-module.exports = getDownloadService;

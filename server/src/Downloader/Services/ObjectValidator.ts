@@ -1,4 +1,4 @@
-class ObjectValidator{
+export class ObjectValidator{
   checkExclusiveProperties(obj, ...properties){
     let propCount = 0;
     properties.forEach(p => {
@@ -7,4 +7,3 @@ class ObjectValidator{
     return propCount == 1;
   }
 }
-module.exports = ObjectValidator;

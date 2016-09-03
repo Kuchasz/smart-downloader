@@ -1,12 +1,11 @@
-var fs = require('fs');
-var Rx = require('rxjs/Rx');
-const getDownloadService = require('./Services/DownloadServiceProvider');
-const ObjectValidator = require('./Services/ObjectValidator');
+import {ObjectValidator} from "./Services/ObjectValidator";
+import * as fs from 'fs';
+import * as Rx from 'rxjs/Rx';
+import { getDownloadService } from './Services/DownloadServiceProvider';
 const objectValidator = new ObjectValidator();
 
-class Downloader {
-  constructor(){
-      this.fileNameTest = /\.dmd$/;
+export class Downloader {
+  constructor(public fileNameTest = /\.dmd$/){
   }
 
   //targetPath, fileUrl, numberOfThreads
@@ -20,7 +19,6 @@ class Downloader {
   //{} with url or filePath
   getFileInfo(urlObject){
     console.log(objectValidator.checkExclusiveProperties(urlObject, 'url', 'filePath'));
-    return {};
     return getDownloadService(urlObject);
   }
 
@@ -47,12 +45,8 @@ class Downloader {
 
   list(path){
     Rx.Observable.bindNodeCallback(fs.readdir)(path)
-      .mergeMap(fileNames => fileNames.map(fileName => Rx.Observable.of(fileName)))
-      .filter(fileName => this.fileNameTest.test(fileName.value))
-      .subscribe(fileName => console.log(fileName.value));
+      // .mergeMap(fileNames => (fileNames.map(fileName => Rx.Observable.of(fileName))))
+      // .filter(fileName => this.fileNameTest.test(fileName))
+      .subscribe(fileName => console.log(fileName));
   }
-}
-
-module.exports = {
-  Downloader
 }

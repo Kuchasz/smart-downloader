@@ -3,7 +3,3 @@ export class FileMetadata {
 
   }
 }
-
-module.exports = {
-  FileMetadata
-}
