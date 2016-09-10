@@ -9,6 +9,7 @@ import * as fs from "fs";
 import * as socketIO from "socket.io";
 
 import * as Rx from 'rxjs/Rx';
+import * as mime from 'mime';
 
 import { DownloadThread } from "./src/Downloader/Models/DownloadThread";
 // var DownloadThread = require('./src/Downloader/Models/DownloadThread').DownloadThread;
@@ -23,8 +24,34 @@ let traffic = 0;
 
 // const io = new socketio(server);
 
-var httpServer = http.createServer((connection)=>{
-  console.log(connection.headers);
+var httpServer = http.createServer((req, res)=>{
+  // serve(req, res, ()=>{});
+  // console.log(req.url);
+  // res.end(req.url, 'utf-8');
+  // console.log(connection.headers);
+  const _path = path.join(__dirname, '/../../client/build/', req.url);
+  console.log(_path);
+  const _stream = fs.createReadStream(_path);
+  const _stat = fs.statSync(_path);
+  // _stream.on('data', (data)=>{
+  //   res.write(data, 'utf-8');
+  // })
+  // _stream.on('end', ()=>{
+    res.writeHead(200, {
+      'Content-Type': mime.lookup(_path),
+      'Content-Length': _stat.size
+    });
+    // res.end();
+
+    _stream.pipe(res);
+
+  // fs.readFile(_path, (err, cont)=>{
+  //
+  //   res.writeHead(200, { 'Content-Type': mime.lookup(_path) });
+  //   res.write(cont);
+  //   res.end('utf-8');
+  // });
+  // connection.
 });
 
 httpServer.listen({
@@ -43,9 +70,15 @@ const io = socketIO();
 // };
 
 // getExpiration();
-
-// const _url = 'http://movietrailers.apple.com/movies/universal/jasonbourne/jasonbourne-tlr1_h1080p.mov';
-const _url = 'http://movietrailers.apple.com/movies/lionsgate/nerve/nerve-tlr2_h480p.mov';
+// const _urls = [
+//   'http://movietrailers.apple.com/movies/independent/max-steel/max-steel-trailer-1_h1080p.mov',
+//   'http://movietrailers.apple.com/movies/independent/silicon-cowboys/silicon-cowboys-trailer-1_h1080p.mov',
+//   'http://movietrailers.apple.com/movies/independent/kickboxervengeance/kickboxer-vengeance-trailer-1_h1080p.mov',
+//   'http://movietrailers.apple.com/movies/independent/yogahosers/yogahosers-intro-tlr1_h1080p.mov',
+//   'http://movietrailers.apple.com/movies/fox/morgan/morgan-tlr1_h1080p.mov'
+// ];
+// const _url = () => _urls[Math.round(Math.random()*_urls.length)];
+ const _url = 'http://movietrailers.apple.com/movies/lionsgate/nerve/nerve-tlr2_h480p.mov';
 // const _url = 'http://178.216.139.23:666/100MB.zip';
 // const _url = 'http://www.google.pl';
 
@@ -76,7 +109,7 @@ const getFile = (url, fd, start, end) => {
   const msg = Rx.Observable.fromEvent(_req, 'response');
   const resp = msg.mergeMap((x: http.IncomingMessage) => Rx.Observable.fromEvent(x, 'data'))
     .map((buffer: Buffer) => {
-      fs.write(fd, buffer, 0, buffer.length, _pos, (s,r)=>{console.log('write: ', r)});
+      fs.write(fd, buffer, 0, buffer.length, _pos);
       _pos += buffer.length;
       return buffer.length;
     })
@@ -115,10 +148,11 @@ const downloadFile = (url, uploader) => {
     .map(x => Math.floor(x.val / x.length * 100))
     .distinctUntilChanged();
   const downloadEnd = downloadProgress.takeLast(1);
-  return gotFileLength.merge(initFile.merge(fileOpen.merge(threadsCreated.merge(downloadBegin.merge(downloadProgress.merge(downloadEnd))))));
+  // return gotFileLength.merge(initFile.merge(fileOpen.merge(threadsCreated.merge(downloadBegin.merge(downloadProgress.merge(downloadEnd))))));
+  return downloadProgress;
 }
 
-var _downloader = downloadFile(_url, {}).subscribe(x=>console.log(x));
+ downloadFile(_url, {}).subscribe(x=>console.log(x));
 
 // down.gotFileLength.subscribe((l)=>console.log(`file length: ${l}`));
 // down.initFile.subscribe(()=>console.log('file initialized'));

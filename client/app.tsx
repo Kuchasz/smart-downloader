@@ -20,7 +20,9 @@ import {PopupsContainer} from './src/views/Popups/PopupsContainer';
 
 import {Files as FilesReducers} from './src/ts/Reducers/Files';
 
-const reducers = combineReducers({files: FilesReducers});
+const reducers = combineReducers({
+  files: FilesReducers
+});
 
 const store = createStore(reducers);
 
@@ -56,7 +58,7 @@ const pushRandom = () => {
 
 pushRandom();
 
-// var ioo = io('http://localhost:3000');
+var ioo = io('http://localhost:8080');
 // ioo.on('foo', (msg)=>console.log(msg));
 // ioo.on('connect', ()=>console.log('connected!'));
 //
@@ -65,6 +67,7 @@ pushRandom();
 //
 //     ioo.emit('download-file', {url: newBie.url(), id: _progress.id})
 //
+
 // ioo.on('download-progress', (progress)=>{
 //   const _progress = newBie.filesProgress().find(p=>p.id == progress.id);
 //   _progress.progress(progress.progress);
