@@ -85,23 +85,46 @@ const io = socketIO();
 // var httpService = _down.getFileInfo(_url);
 // console.log(httpService);
 
-const getFileLength = (url) => (new Promise<number>((res, rej)=>{
-  const _req = http.request(url);
+const _getLengthFromHeaders = (headers: any): Promise<number> => {
+  return new Promise<number>((resolve, reject)=>{
+    try {
+      const length = headers['content-range'].split('/')[1];
+      resolve(length);
+    } catch (e){
+      reject();
+    }
+  });
+}
 
-  Rx.Observable.fromEvent(_req, 'response')
-    .subscribe((msg: http.IncomingMessage)=>{
-      res(msg.headers['content-range'].split('/')[1]);
+const _handleHttpResponse = (request: http.ClientRequest): Promise<number> => {
+  return new Promise<number>((resolve, reject)=>{
+    request.once('response', (msg: http.IncomingMessage)=>{
+      _getLengthFromHeaders(msg.headers)
+        .then(resolve)
+        .catch(reject);
     });
+  });
+}
 
-  Rx.Observable.fromEvent(_req, 'error')
-    .subscribe((err)=>{
-      rej(err);
+const _handleHttpError = (request: http.ClientRequest): Promise<void> => {
+  return new Promise<void>((resolve, reject)=>{
+    request.once('error', (err)=>{
+      resolve(err);
     });
+  });
+};
 
-  _req.setHeader('Range', 'bytes=0-')
-  _req.end();
-  })
-);
+const _getFileLength = (url: string) => {
+  return new Promise<number>((res, rej)=>{
+    const _req = http.request(url);
+
+    _handleHttpResponse(_req).then(res).catch(rej);
+    _handleHttpError(_req).then(rej);
+
+    _req.setHeader('Range', 'bytes=0-')
+    _req.end();
+  });
+}
 
 const getFile = (url, fd, start, end) => {
   const _req = http.request(url);
@@ -130,12 +153,45 @@ var createThreads = (amount, length: number, fd) => {
   return threads;
 };
 
+const _initFile = (fileName: string, fileLength: number):Promise<void> => {
+  return new Promise<void>((resolve, reject)=>{
+    fs.writeFile(fileName, Buffer.allocUnsafe(1), (err)=>{
+      if(err === null) resolve(); else reject();
+    });
+  });
+}
+
+const _openSize = (fileName: string): Promise<number> => {
+  return new Promise<number>((resolve, reject)=>{
+    fs.open(fileName, 'w', (err, fd)=>{
+      if (err === null) resolve(fd); else reject();
+    });
+  });
+}
+
+const _resizeFile = (fd: number, length: number): Promise<void> => {
+  return new Promise<void>((resolve, reject)=>{
+    fs.ftruncate(fd, length, (err)=>{
+      if (err === null) resolve(); else reject();
+    });
+  });
+}
+
+const _createThreads = (fd: number, length: number, threadsCount: number = 5): Promise<DownloadThread[]> => {
+  return new Promise<DownloadThread[]>((resolve, reject)=>{
+    const perThreadLength = Math.floor(length/threadsCount);
+    const threads = Array.from(Array(threadsCount)).map((v, i)=>{
+      return new DownloadThread(i*perThreadLength, i == (threadsCount-1) ? length : (i+1)*perThreadLength-1, fd)
+    });
+    resolve(threads);
+  });
+}
+
 const downloadFile = (url, uploader) => {
   const _fileNName = path.join(__dirname, `/assets/storage/temp/_${new Date().getTime()}_labo.dmd`);
-  const gotFileLength = Rx.Observable.fromPromise(getFileLength(url)).share();
+  const gotFileLength = Rx.Observable.fromPromise(_getFileLength(url)).share();
   const initFile  = gotFileLength.mergeMap(length =>{
     return Rx.Observable.bindNodeCallback<string, Buffer, number>(fs.writeFile)(_fileNName, Buffer.allocUnsafe(1)).map(x => length).take(1);
-    //(_fileNName, Buffer.allocUnsafe(1), (err)=>{})    .map(x => length).take(1)
   });
   initFile.subscribe(x=>console.log(x));
   const fileOpen = initFile.mergeMap(length =>
@@ -152,7 +208,20 @@ const downloadFile = (url, uploader) => {
   return downloadProgress;
 }
 
- downloadFile(_url, {}).subscribe(x=>console.log(x));
+ // downloadFile(_url, {}).subscribe(x=>console.log(x));
+
+// _getFileLength(_url)
+//   .then(length => console.log(`File length: ${length}`));
+
+_createThreads(11, 23423, 5).then(console.log);
+
+// const asyncDownloadFile = (url: string) => {
+//   const _targetFilePath = path.join(__dirname, `/assets/storage/temp/_${new Date().getTime()}_labo.dmd`);
+//   getFileLength(url)
+//     .then();
+// }
+
+// _initFile('/var/www/foo', 1);
 
 // down.gotFileLength.subscribe((l)=>console.log(`file length: ${l}`));
 // down.initFile.subscribe(()=>console.log('file initialized'));
