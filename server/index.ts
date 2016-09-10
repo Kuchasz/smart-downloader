@@ -96,7 +96,7 @@ const _getLengthFromHeaders = (headers: any): Promise<number> => {
   });
 }
 
-const _handleHttpResponse = (request: http.ClientRequest): Promise<number> => {
+const _getHeadersFromRequestResponse = (request: http.ClientRequest): Promise<number> => {
   return new Promise<number>((resolve, reject)=>{
     request.once('response', (msg: http.IncomingMessage)=>{
       _getLengthFromHeaders(msg.headers)
@@ -106,7 +106,7 @@ const _handleHttpResponse = (request: http.ClientRequest): Promise<number> => {
   });
 }
 
-const _handleHttpError = (request: http.ClientRequest): Promise<void> => {
+const _handleRequestError = (request: http.ClientRequest): Promise<void> => {
   return new Promise<void>((resolve, reject)=>{
     request.once('error', (err)=>{
       resolve(err);
@@ -118,13 +118,28 @@ const _getFileLength = (url: string) => {
   return new Promise<number>((res, rej)=>{
     const _req = http.request(url);
 
-    _handleHttpResponse(_req).then(res).catch(rej);
-    _handleHttpError(_req).then(rej);
+    _getHeadersFromRequestResponse(_req).then(res).catch(rej);
+    _handleRequestError(_req).then(rej);
 
     _req.setHeader('Range', 'bytes=0-')
     _req.end();
   });
 }
+
+const _getFile = (url: string, fd: number, start: number, end: number) => {
+  const _req = http.request(url);
+
+  _req.once('response', (msg: http.IncomingMessage)=>{
+    let position:number = start;
+    msg.on('data', (buffer: Buffer)=>{
+      fs.write(fd, buffer, 0, buffer.length, position);
+      position += buffer.length;
+    });
+  });
+
+  _req.setHeader('Range', `bytes=${start}-${end}`);
+  _req.end();
+};
 
 const getFile = (url, fd, start, end) => {
   const _req = http.request(url);
