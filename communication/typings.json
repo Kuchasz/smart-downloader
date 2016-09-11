@@ -1,0 +1,7 @@
+{
+  "name": "communication",
+  "dependencies": {},
+  "globalDependencies": {
+    "redux": "registry:dt/redux#3.5.2+20160703092728"
+  }
+}
