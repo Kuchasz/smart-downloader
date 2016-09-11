@@ -5,6 +5,7 @@ import * as url from "url";
 import * as util from "util";
 import * as net from "net";
 import * as fs from "fs";
+import * as events from 'events';
 
 import * as socketIO from "socket.io";
 
@@ -24,42 +25,13 @@ let traffic = 0;
 
 // const io = new socketio(server);
 
-var httpServer = http.createServer((req, res)=>{
-  // serve(req, res, ()=>{});
-  // console.log(req.url);
-  // res.end(req.url, 'utf-8');
-  // console.log(connection.headers);
-  const _path = path.join(__dirname, '/../../client/build/', req.url);
-  console.log(_path);
-  const _stream = fs.createReadStream(_path);
-  const _stat = fs.statSync(_path);
-  // _stream.on('data', (data)=>{
-  //   res.write(data, 'utf-8');
-  // })
-  // _stream.on('end', ()=>{
-    res.writeHead(200, {
-      'Content-Type': mime.lookup(_path),
-      'Content-Length': _stat.size
-    });
-    // res.end();
-
-    _stream.pipe(res);
-
-  // fs.readFile(_path, (err, cont)=>{
-  //
-  //   res.writeHead(200, { 'Content-Type': mime.lookup(_path) });
-  //   res.write(cont);
-  //   res.end('utf-8');
-  // });
-  // connection.
-});
+var httpServer = http.createServer();
 
 httpServer.listen({
-  port:8080
+  port:8081
 });
 
-const io = socketIO();
-
+const io = socketIO(httpServer);
 
 // function getExpiration(){
   // request.post('http://rapidu.net/api/getAccountDetails/', { form: config.credentials.rapidu, json:true }, (err, res, body) => {
@@ -77,8 +49,9 @@ const io = socketIO();
 //   'http://movietrailers.apple.com/movies/independent/yogahosers/yogahosers-intro-tlr1_h1080p.mov',
 //   'http://movietrailers.apple.com/movies/fox/morgan/morgan-tlr1_h1080p.mov'
 // ];
-// const _url = () => _urls[Math.round(Math.random()*_urls.length)];
- const _url = 'http://movietrailers.apple.com/movies/lionsgate/nerve/nerve-tlr2_h480p.mov';
+// const __url = () => _urls[Math.round(Math.random()*_urls.length)];
+// const _url = 'http://movietrailers.apple.com/movies/lionsgate/nerve/nerve-tlr2_h480p.mov';
+// const _url = __url();
 // const _url = 'http://178.216.139.23:666/100MB.zip';
 // const _url = 'http://www.google.pl';
 
@@ -126,19 +99,30 @@ const _getFileLength = (url: string) => {
   });
 }
 
-const _getFile = (url: string, fd: number, start: number, end: number) => {
-  const _req = http.request(url);
+const _getFile = (url: string, thread: DownloadThread): DownloadProcess => {
+    const _req = http.request(url);
+    let downloadProcess = new DownloadProcess(0,0,0);
 
-  _req.once('response', (msg: http.IncomingMessage)=>{
-    let position:number = start;
-    msg.on('data', (buffer: Buffer)=>{
-      fs.write(fd, buffer, 0, buffer.length, position);
-      position += buffer.length;
+    _req.once('response', (msg: http.IncomingMessage)=>{
+      let position:number = thread.start;
+      downloadProcess.emit('start');
+
+      msg.on('data', (buffer: Buffer)=>{
+        fs.write(thread.fd, buffer, 0, buffer.length, position);
+        position += buffer.length;
+        downloadProcess.emit('progress', buffer.length);
+      });
+
+      msg.on('end', ()=>{
+        downloadProcess.emit('finnish');
+      });
+
     });
-  });
 
-  _req.setHeader('Range', `bytes=${start}-${end}`);
-  _req.end();
+    _req.setHeader('Range', `bytes=${thread.start}-${thread.end}`);
+    _req.end();
+
+    return downloadProcess;
 };
 
 const getFile = (url, fd, start, end) => {
@@ -176,7 +160,7 @@ const _initFile = (fileName: string, fileLength: number):Promise<void> => {
   });
 }
 
-const _openSize = (fileName: string): Promise<number> => {
+const _openFile = (fileName: string): Promise<number> => {
   return new Promise<number>((resolve, reject)=>{
     fs.open(fileName, 'w', (err, fd)=>{
       if (err === null) resolve(fd); else reject();
@@ -191,6 +175,23 @@ const _resizeFile = (fd: number, length: number): Promise<void> => {
     });
   });
 }
+
+type downloadProcessEvents = 'start' | 'progress' | 'finnish';
+
+class DownloadProcess extends events.EventEmitter{
+  constructor(public start:number, public end:number, public fd:number){
+    super();
+  }
+  emit(event: downloadProcessEvents, ...args: any[]): boolean{
+    return super.emit(event, ...args);
+  };
+  on(event: downloadProcessEvents, listener: Function): this {
+    return <this>super.on(event, listener);
+  }
+}
+//
+// const fff:Download = new Download(0, 1, 5);
+// fff.
 
 const _createThreads = (fd: number, length: number, threadsCount: number = 5): Promise<DownloadThread[]> => {
   return new Promise<DownloadThread[]>((resolve, reject)=>{
@@ -228,7 +229,44 @@ const downloadFile = (url, uploader) => {
 // _getFileLength(_url)
 //   .then(length => console.log(`File length: ${length}`));
 
-_createThreads(11, 23423, 5).then(console.log);
+const __downloadFile  = (url: string, id: number, sock: SocketIO.Socket) => {
+  var __ = {
+    length: 0,
+    fd: 0,
+    downloadedLength: 0,
+    progress: undefined
+  };
+
+  _getFileLength(url)
+  .then(length => {
+    __.length = length;
+    return _initFile('test', length)
+  })
+  .then(() => _openFile('test'))
+  .then(fd => {
+    __.fd = fd;
+    return _resizeFile(__.fd, __.length);
+  })
+  .then(() => _createThreads(__.fd, __.length))
+  .then(threads => (threads.map(thread => _getFile(url, thread))))
+  .then(ps => {
+      ps.forEach(psss=>{
+        psss.on('progress', (p)=>{
+          __.downloadedLength += p;
+          const progress = Math.floor(100*(__.downloadedLength/__.length));
+          if (progress !== __.progress){
+              __.progress = progress;
+              sock.emit('download-progress', {id, progress });
+              console.log(`Download progress: ${progress}%`);
+          }
+      });
+  });
+});
+}
+
+
+
+// _createThreads(11, 23423, 5).then(threads=>threads.forEach(thread => _getFile(_url, thread)));
 
 // const asyncDownloadFile = (url: string) => {
 //   const _targetFilePath = path.join(__dirname, `/assets/storage/temp/_${new Date().getTime()}_labo.dmd`);
@@ -294,16 +332,16 @@ _createThreads(11, 23423, 5).then(console.log);
 // });
 
 // Rx.Observable.fromEvent(io, 'connection').subscribe((socket)=>console.log('client-connetec'));
-
 io.on('connection', (socket) => {
   console.log('a user connected');
 
   socket.on('download-file', (d)=>{
-    downloadFile(d.url, socket)
-    .subscribe(x => {
-      console.log(x);
-      socket.emit('download-progress', {id: d.id, progress:x});
-    });
+    __downloadFile(d.url, d.id, socket);
+    // downloadFile(d.url, socket)
+    // .subscribe(x => {
+    //   console.log(x);
+    //   socket.emit('download-progress', {id: d.id, progress:x});
+    // });
   });
 
   socket.on('disconnect', () => {

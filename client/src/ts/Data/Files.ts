@@ -24,8 +24,6 @@ export const CreateFile = () => ({
   account: _randomAccount()
 });
 
-
-
 export const Files = () => [
   CreateFile(),
   CreateFile(),

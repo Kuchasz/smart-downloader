@@ -20,6 +20,8 @@ import {PopupsContainer} from './src/views/Popups/PopupsContainer';
 
 import {Files as FilesReducers} from './src/ts/Reducers/Files';
 
+import * as io from 'socket.io-client';
+
 const reducers = combineReducers({
   files: FilesReducers
 });
@@ -53,12 +55,23 @@ render(
 const pushRandom = () => {
   const _timeout = Math.random()*2000;
   store.dispatch(FileActions.UpdateFiles());
-  setTimeout(pushRandom, _timeout);
+  // setTimeout(pushRandom, _timeout);
 };
 
 pushRandom();
 
-var ioo = io('http://localhost:8080');
+var ioo = io('http://localhost:8081');
+
+ioo.on('download-progress', (prog)=>{
+  store.dispatch(FileActions.UpdateFileProgress(0, prog.progress));
+});
+
+setTimeout(()=>{
+  ioo.emit('download-file', {
+    id: 666,
+    url:   'http://movietrailers.apple.com/movies/independent/max-steel/max-steel-trailer-1_h1080p.mov'
+    });
+}, 2500);
 // ioo.on('foo', (msg)=>console.log(msg));
 // ioo.on('connect', ()=>console.log('connected!'));
 //

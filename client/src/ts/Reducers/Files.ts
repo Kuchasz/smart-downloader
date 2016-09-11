@@ -12,7 +12,10 @@ export function Files(state = CreateFiles(), action) {
         speed: (Math.random()*10).toFixed(2)
       }));
     }
-    case 'REMOVE_FILE': return state;
+    case 'REMOVE_FILE': return state
+    case 'UPDATE_FILE_PROGRESS': {
+      return [ Object.assign({}, state[0], {progress: action.fileProgress}), ...state.slice(1)];
+    }
     default: return state;
   }
 };

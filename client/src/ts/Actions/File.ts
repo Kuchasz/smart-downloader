@@ -9,5 +9,10 @@ export default {
   RemoveFile: (fileId)=>({
     type: 'REMOVE_FILE',
     fileId
+  }),
+  UpdateFileProgress: (fileId: number, fileProgress: number)=>({
+    type: 'UPDATE_FILE_PROGRESS',
+    fileId,
+    fileProgress
   })
 };
