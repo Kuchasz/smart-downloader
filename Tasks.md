@@ -6,3 +6,8 @@ _All components used in UI should come from bootstrap library. Keep english as m
 
 ## Server ##
 _Server side application requirements_
+
+## Fine samples
+interface Dispatch<S> {
+        <A extends Action>(action: A): A;
+    }
