@@ -1,20 +1,20 @@
-import * as path from "path";
-import { config } from "./config";
+// import * as path from "path";
+// import { config } from "./config";
 import * as http from "http";
-import * as url from "url";
-import * as util from "util";
-import * as net from "net";
+// import * as url from "url";
+// import * as util from "util";
+// import * as net from "net";
 import * as fs from "fs";
 import * as events from 'events';
 
 import * as socketIO from "socket.io";
 
-import * as Rx from 'rxjs/Rx';
-import * as mime from 'mime';
+// import * as Rx from 'rxjs/Rx';
+// import * as mime from 'mime';
 
 import { DownloadThread } from "./src/Downloader/Models/DownloadThread";
 // var DownloadThread = require('./src/Downloader/Models/DownloadThread').DownloadThread;
-import { Downloader } from "./src/Downloader/Downloader";
+// import { Downloader } from "./src/Downloader/Downloader";
 
 
 let traffic = 0;
@@ -87,7 +87,7 @@ const _handleRequestError = (request: http.ClientRequest): Promise<void> => {
   });
 };
 
-const _getFileLength = (url: string) => {
+const _getFileLength = (url: string): Promise<number> => {
   return new Promise<number>((res, rej)=>{
     const _req = http.request(url);
 
@@ -125,32 +125,32 @@ const _getFile = (url: string, thread: DownloadThread): DownloadProcess => {
     return downloadProcess;
 };
 
-const getFile = (url, fd, start, end) => {
-  const _req = http.request(url);
-  let _pos = start;
-  const msg = Rx.Observable.fromEvent(_req, 'response');
-  const resp = msg.mergeMap((x: http.IncomingMessage) => Rx.Observable.fromEvent(x, 'data'))
-    .map((buffer: Buffer) => {
-      fs.write(fd, buffer, 0, buffer.length, _pos);
-      _pos += buffer.length;
-      return buffer.length;
-    })
-    .takeUntil(msg.mergeMap((x: http.IncomingMessage) => Rx.Observable.fromEvent(x, 'end')))
+// const getFile = (url, fd, start, end) => {
+//   const _req = http.request(url);
+//   let _pos = start;
+//   const msg = Rx.Observable.fromEvent(_req, 'response');
+//   const resp = msg.mergeMap((x: http.IncomingMessage) => Rx.Observable.fromEvent(x, 'data'))
+//     .map((buffer: Buffer) => {
+//       fs.write(fd, buffer, 0, buffer.length, _pos);
+//       _pos += buffer.length;
+//       return buffer.length;
+//     })
+//     .takeUntil(msg.mergeMap((x: http.IncomingMessage) => Rx.Observable.fromEvent(x, 'end')))
+//
+//   _req.setHeader('Range', `bytes=${start}-${end}`);
+//   _req.end();
+//
+//   return resp;
+// };
 
-  _req.setHeader('Range', `bytes=${start}-${end}`);
-  _req.end();
-
-  return resp;
-};
-
-var createThreads = (amount, length: number, fd) => {
-  const threads = [];
-  const perThreadLength = Math.floor(length/amount);
-  for (var i=0; i<amount; i++){
-    threads.push(new DownloadThread(i*perThreadLength, i == (amount-1) ? length : (i+1)*perThreadLength-1, fd));
-  }
-  return threads;
-};
+// var createThreads = (amount, length: number, fd) => {
+//   const threads = [];
+//   const perThreadLength = Math.floor(length/amount);
+//   for (var i=0; i<amount; i++){
+//     threads.push(new DownloadThread(i*perThreadLength, i == (amount-1) ? length : (i+1)*perThreadLength-1, fd));
+//   }
+//   return threads;
+// };
 
 const _initFile = (fileName: string, fileLength: number):Promise<void> => {
   return new Promise<void>((resolve, reject)=>{
@@ -203,28 +203,28 @@ const _createThreads = (fd: number, length: number, threadsCount: number = 5): P
   });
 }
 
-const downloadFile = (url, uploader) => {
-  const _fileNName = path.join(__dirname, `/assets/storage/temp/_${new Date().getTime()}_labo.dmd`);
-  const gotFileLength = Rx.Observable.fromPromise(_getFileLength(url)).share();
-  const initFile  = gotFileLength.mergeMap(length =>{
-    return Rx.Observable.bindNodeCallback<string, Buffer, number>(fs.writeFile)(_fileNName, Buffer.allocUnsafe(1)).map(x => length).take(1);
-  });
-  initFile.subscribe(x=>console.log(x));
-  const fileOpen = initFile.mergeMap(length =>
-    Rx.Observable.bindNodeCallback(fs.open)(_fileNName, 'w')
-      .do((fd: number) => fs.ftruncateSync(fd, length))
-      .map((fd: number) => ({fd, length})).take(1));
-  const threadsCreated = fileOpen.mergeMap(x => createThreads(5, x.length, x.fd).map(thread => ({length: x.length, thread})));
-  const downloadBegin = threadsCreated.mergeMap(t => getFile(url, t.thread.fd, t.thread.start, t.thread.end).map(y => ({length: t.length, val: y})));
-  const downloadProgress = downloadBegin.scan((l, r) => ({length: r.length, val: l.val + r.val}), {length: 0, val: 0})
-    .map(x => Math.floor(x.val / x.length * 100))
-    .distinctUntilChanged();
-  const downloadEnd = downloadProgress.takeLast(1);
-  // return gotFileLength.merge(initFile.merge(fileOpen.merge(threadsCreated.merge(downloadBegin.merge(downloadProgress.merge(downloadEnd))))));
-  return downloadProgress;
-}
+// const downloadFile = (url, uploader) => {
+//   const _fileNName = path.join(__dirname, `/assets/storage/temp/_${new Date().getTime()}_labo.dmd`);
+//   const gotFileLength = Rx.Observable.fromPromise(_getFileLength(url)).share();
+//   const initFile  = gotFileLength.mergeMap(length =>{
+//     return Rx.Observable.bindNodeCallback<string, Buffer, number>(fs.writeFile)(_fileNName, Buffer.allocUnsafe(1)).map(x => length).take(1);
+//   });
+//   initFile.subscribe(x=>console.log(x));
+//   const fileOpen = initFile.mergeMap(length =>
+//     Rx.Observable.bindNodeCallback(fs.open)(_fileNName, 'w')
+//       .do((fd: number) => fs.ftruncateSync(fd, length))
+//       .map((fd: number) => ({fd, length})).take(1));
+//   const threadsCreated = fileOpen.mergeMap(x => createThreads(5, x.length, x.fd).map(thread => ({length: x.length, thread})));
+//   const downloadBegin = threadsCreated.mergeMap(t => getFile(url, t.thread.fd, t.thread.start, t.thread.end).map(y => ({length: t.length, val: y})));
+//   const downloadProgress = downloadBegin.scan((l, r) => ({length: r.length, val: l.val + r.val}), {length: 0, val: 0})
+//     .map(x => Math.floor(x.val / x.length * 100))
+//     .distinctUntilChanged();
+//   const downloadEnd = downloadProgress.takeLast(1);
+//   // return gotFileLength.merge(initFile.merge(fileOpen.merge(threadsCreated.merge(downloadBegin.merge(downloadProgress.merge(downloadEnd))))));
+//   return downloadProgress;
+// }
 
- // downloadFile(_url, {}).subscribe(x=>console.log(x));
+// downloadFile(_url, {}).subscribe(x=>console.log(x));
 
 // _getFileLength(_url)
 //   .then(length => console.log(`File length: ${length}`));

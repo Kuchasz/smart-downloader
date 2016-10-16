@@ -1,36 +1,35 @@
-import {Accounts} from './Accounts';
-const accs = Accounts();
+import { createAccounts } from './Accounts';
+import { File, Status } from '../Models/File';
+import { Account } from "../Models/Account";
+import { getRandomFileName, getRandomFloat, getRandomInt, getRandomBool } from "./Common";
 
-const _words = ['allies', 'youtube', 'yellow', 'dragon', 'bone', 'cpu', 'kylio', 'travis', 'react', 'brother', 'wedding', 'photo', 'video', 'lopez', 'diary'];
-const _statuses = ['progress', 'finished', 'waiting', 'canceled'];
-const _randomWord = () => _words[Math.floor(Math.random()*_words.length)];
-const _randomFileName = () => {
-    const _length = Math.floor(Math.random()*_words.length)+1;
-    var _fileName = '.jpg';
-    for (let i=0; i<_length; i++) _fileName = `${_randomWord()}-${_fileName}`;
-    return _fileName;
-}
-const _randomAccount = () => accs[Math.floor(Math.random()*accs.length)];
-const _randomStatus = () => _statuses[Math.floor(Math.random()*_statuses.length)];
+const _accounts: Account[] = createAccounts();
 
-export const CreateFile = () => ({
-  id: Math.floor(Math.random()*10000),
-  fileName: _randomFileName(),
-  status: _randomStatus(),
-  speed: (Math.random()*10).toFixed(2),
-  estimatedTime: `${Math.floor(Math.random()*24)}:${Math.floor(Math.random()*60)}:${Math.floor(Math.random()*60)}`,
-  progress: Math.floor(Math.random()*100),
-  selected: Math.random()>0.5,
-  account: _randomAccount()
+const _predefinedStatuses: Status[] = ['Progress', 'Finished', 'Waiting', 'Canceled'];
+
+const _getRandomAccount = (): Account => _accounts[Math.floor(Math.random() * _accounts.length)];
+const _getRandomStatus = (): Status => _predefinedStatuses[Math.floor(Math.random() * _predefinedStatuses.length)];
+
+let _initialFileId: number = 0;
+
+export const createFile = (): File => ({
+	id: _initialFileId++,
+	fileName: getRandomFileName(),
+	status: _getRandomStatus(),
+	speed: getRandomFloat(),
+	estimatedTime: `${getRandomInt(24)}:${getRandomInt(60)}:${getRandomInt(60)}`,
+	progress: getRandomInt(100),
+	selected: getRandomBool(),
+	accountId: _getRandomAccount().id
 });
 
-export const Files = () => [
-  CreateFile(),
-  CreateFile(),
-  CreateFile(),
-  CreateFile(),
-  CreateFile(),
-  CreateFile(),
-  CreateFile(),
-  CreateFile()
+export const createFiles = (): File[] => [
+	createFile(),
+	createFile(),
+	createFile(),
+	createFile(),
+	createFile(),
+	createFile(),
+	createFile(),
+	createFile()
 ];

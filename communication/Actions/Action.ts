@@ -1,10 +1,10 @@
 export interface Action {
   type: string;
-  executionMode: ActionExecution;
+  executionMode: ActionScope;
 }
 
-export enum ActionExecution{
+export enum ActionScope{
   Local,
   Remote,
   Both
-}
+};
