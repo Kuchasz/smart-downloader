@@ -26,8 +26,7 @@ const reducers = combineReducers({
 });
 
 const store = createStore(
-	reducers,
-	applyMiddleware(loggerMiddleware));
+	reducers);
 
 render(
   <AccountList accounts={createAccounts()}/>,
@@ -35,10 +34,10 @@ render(
 );
 
 render(
-  <Provider store={store}>
-    <FileList/>
-  </Provider>,
-  document.getElementById('files-list')
+    <Provider store={store}>
+        <FileList/>
+    </Provider>,
+    document.getElementById('files-list')
 );
 
 render(
@@ -53,19 +52,26 @@ render(
   document.getElementById('header')
 );
 
-const pushRandom = () => {
-  const _timeout = Math.random()*2000;
-  store.dispatch(fileActions.createUpdateFilesAction());
-  // setTimeout(pushRandom, _timeout);
-};
+// store.dispatch({type: 'adawdadw'});
 
-pushRandom();
+// const pushRandom = () => {
+//   const _timeout = Math.random()*2000;
+//   store.dispatch(fileActions.createUpdateFilesAction());
+//   // setTimeout(pushRandom, _timeout);
+// };
+
+// pushRandom();
 
 var ioo = io('http://localhost:8081');
-
+//
 ioo.on('download-progress', (prog: { progress: number })=>{
 	const action = fileActions.createUpdateFileProgressAction(0, prog.progress);
   	store.dispatch(action);
+});
+
+ioo.on('download-start', (p: {id: number, url: string})=> {
+    const action = fileActions.createAddFileAction(p.url);
+    store.dispatch(action);
 });
 
 setTimeout(()=>{
@@ -75,7 +81,7 @@ setTimeout(()=>{
     });
 }, 2500);
 // ioo.on('foo', (msg)=>console.log(msg));
-// ioo.on('connect', ()=>console.log('connected!'));
+ioo.on('connect', ()=>console.log('connected!'));
 //
 // const iterator = fireUp();
 // for(let i=0; i<5; i++)setTimeout(()=>newBie.name('Tiffany ' + iterator.next().value), 1000*i);
@@ -84,6 +90,7 @@ setTimeout(()=>{
 //
 
 // ioo.on('download-progress', (progress)=>{
-//   const _progress = newBie.filesProgress().find(p=>p.id == progress.id);
-//   _progress.progress(progress.progress);
+//     console.log(progress);
+//   // const _progress = newBie.filesProgress().find(p=>p.id == progress.id);
+//   // _progress.progress(progress.progress);
 // });

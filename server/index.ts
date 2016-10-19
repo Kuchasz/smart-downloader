@@ -250,7 +250,11 @@ const __downloadFile  = (url: string, id: number, sock: SocketIO.Socket) => {
   .then(() => _createThreads(__.fd, __.length))
   .then(threads => (threads.map(thread => _getFile(url, thread))))
   .then(ps => {
+      sock.emit('download-start', {id, url});
       ps.forEach(psss=>{
+        // psss.on('start', p=>{
+        //
+        // });
         psss.on('progress', (p)=>{
           __.downloadedLength += p;
           const progress = Math.floor(100*(__.downloadedLength/__.length));
