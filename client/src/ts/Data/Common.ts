@@ -12,4 +12,4 @@ export const getRandomWord = (predefinedWords: string[] = _defaultPredefinedWord
 export const getRandomFileName = (length: number = _defaultFileNameLength): string => Array.apply(null, {length: Math.floor(Math.random() * length) + 1}).map(getRandomWord).reduce((fn, w)=>(`${w}${fn}`), '.jpg');
 export const getRandomColor = (predefinedColors: string[] = _defaultPredefinedColors): string => getRandomElementFromArray(predefinedColors);
 export const getRandomDate = (): Date => new Date(getRandomInt(new Date().getFullYear()), getRandomInt(12), getRandomInt(31), getRandomInt(24), getRandomInt(60), getRandomInt(60), getRandomInt(100));
-export const getRandomDateRange = (start: Date = getRandomDate()): ({start: Date, end: Date}) => ({	start,	end: new Date(start.valueOf() + getRandomInt(100000000))});
+export const getRandomDateRange = (start: Date = getRandomDate()): {start: Date, end: Date} => ({	start,	end: new Date(start.valueOf() + getRandomInt(100000000))});

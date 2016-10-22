@@ -1,4 +1,4 @@
-import { createFiles, createFile } from '../Data/Files';
+import { createFiles } from '../Data/Files';
 import { getRandomInt, getRandomFloat } from "../Data/Common";
 
 export function Files(state = createFiles(), action) {

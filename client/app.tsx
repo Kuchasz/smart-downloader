@@ -17,17 +17,12 @@ import {Header} from './src/views/Header/Header';
 
 import {Files as FilesReducers} from './src/ts/Reducers/Files';
 
-import * as io from 'socket.io-client';
-import {applyMiddleware} from "redux";
-import {loggerMiddleware} from "../communication/Middleware/RemoteActionExecutionMiddleware";
-
 const reducers = combineReducers({
   files: FilesReducers
 });
 
 const store = createStore(
-	reducers,
-	applyMiddleware(loggerMiddleware));
+	reducers);
 
 render(
   <AccountList accounts={createAccounts()}/>,
@@ -35,10 +30,10 @@ render(
 );
 
 render(
-  <Provider store={store}>
-    <FileList/>
-  </Provider>,
-  document.getElementById('files-list')
+    <Provider store={store}>
+        <FileList/>
+    </Provider>,
+    document.getElementById('files-list')
 );
 
 render(
@@ -53,14 +48,6 @@ render(
   document.getElementById('header')
 );
 
-// const pushRandom = () => {
-//   const _timeout = Math.random()*2000;
-//   store.dispatch(fileActions.createUpdateFilesAction());
-//   // setTimeout(pushRandom, _timeout);
-// };
-
-// pushRandom();
-
 var ioo = io('http://localhost:8081');
 
 ioo.on('download-progress', (prog: { id: number, progress: number }) => {
@@ -69,7 +56,6 @@ ioo.on('download-progress', (prog: { id: number, progress: number }) => {
 });
 
 ioo.on('download-start', (x: { id: number, url: string}) => {
-	// console.log(x);
 	const action = fileActions.createAddFileAction(x.id, x.url);
 	store.dispatch(action);
 });
@@ -96,16 +82,3 @@ setTimeout(()=>{
 		url:   'http://movietrailers.apple.com/movies/independent/max-steel/max-steel-trailer-1_h1080p.mov'
 	});
 }, 7500);
-// ioo.on('foo', (msg)=>console.log(msg));
-// ioo.on('connect', ()=>console.log('connected!'));
-//
-// const iterator = fireUp();
-// for(let i=0; i<5; i++)setTimeout(()=>newBie.name('Tiffany ' + iterator.next().value), 1000*i);
-//
-//     ioo.emit('download-file', {url: newBie.url(), id: _progress.id})
-//
-
-// ioo.on('download-progress', (progress)=>{
-//   const _progress = newBie.filesProgress().find(p=>p.id == progress.id);
-//   _progress.progress(progress.progress);
-// });
