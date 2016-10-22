@@ -53,27 +53,49 @@ render(
   document.getElementById('header')
 );
 
-const pushRandom = () => {
-  const _timeout = Math.random()*2000;
-  store.dispatch(fileActions.createUpdateFilesAction());
-  // setTimeout(pushRandom, _timeout);
-};
+// const pushRandom = () => {
+//   const _timeout = Math.random()*2000;
+//   store.dispatch(fileActions.createUpdateFilesAction());
+//   // setTimeout(pushRandom, _timeout);
+// };
 
-pushRandom();
+// pushRandom();
 
 var ioo = io('http://localhost:8081');
 
-ioo.on('download-progress', (prog: { progress: number })=>{
-	const action = fileActions.createUpdateFileProgressAction(0, prog.progress);
+ioo.on('download-progress', (prog: { id: number, progress: number }) => {
+	const action = fileActions.createUpdateFileProgressAction(prog.id, prog.progress);
   	store.dispatch(action);
+});
+
+ioo.on('download-start', (x: { id: number, url: string}) => {
+	// console.log(x);
+	const action = fileActions.createAddFileAction(x.id, x.url);
+	store.dispatch(action);
 });
 
 setTimeout(()=>{
   ioo.emit('download-file', {
-    id: 666,
+    id: Math.floor(Math.random()*1000),
     url:   'http://movietrailers.apple.com/movies/independent/max-steel/max-steel-trailer-1_h1080p.mov'
     });
 }, 2500);
+
+
+setTimeout(()=>{
+	ioo.emit('download-file', {
+		id: Math.floor(Math.random()*1000),
+		url:   'http://movietrailers.apple.com/movies/independent/max-steel/max-steel-trailer-1_h1080p.mov'
+	});
+}, 5000);
+
+
+setTimeout(()=>{
+	ioo.emit('download-file', {
+		id: Math.floor(Math.random()*1000),
+		url:   'http://movietrailers.apple.com/movies/independent/max-steel/max-steel-trailer-1_h1080p.mov'
+	});
+}, 7500);
 // ioo.on('foo', (msg)=>console.log(msg));
 // ioo.on('connect', ()=>console.log('connected!'));
 //

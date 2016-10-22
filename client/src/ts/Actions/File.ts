@@ -2,7 +2,7 @@ import { ActionCreator, Action } from "redux";
 
 export class AddFileAction implements Action{
 	type: string;
-	constructor(public name: string){
+	constructor(public id: number, public name: string){
 		this.type = 'ADD_FILE';
 	}
 }
@@ -29,9 +29,9 @@ export class UpdateFilesAction implements Action{
 }
 
 class FileActionCreators {
-	createAddFileAction: ActionCreator<AddFileAction> = (name: string) => new AddFileAction(name);
+	createAddFileAction: ActionCreator<AddFileAction> = (id: number, name: string) => ({type: 'ADD_FILE', id, name });
 	createRemoveFileAction: ActionCreator<RemoveFileAction> = (id: number) => new RemoveFileAction(id);
-	createUpdateFileProgressAction: ActionCreator<UpdateFileProgressAction> = (id: number, progress: number) => new UpdateFileProgressAction(id, progress);
+	createUpdateFileProgressAction: ActionCreator<UpdateFileProgressAction> = (id: number, progress: number) => ({ type: 'UPDATE_FILE_PROGRESS', id, progress });
 	createUpdateFilesAction: ActionCreator<UpdateFilesAction> = () => new UpdateFilesAction();
 };
 
