@@ -5,6 +5,7 @@ import {createStore, combineReducers} from 'redux';
 import {render} from 'react-dom';
 import * as React from 'react';
 import {Provider} from 'react-redux';
+import * as io from 'socket.io-client';
 
 import {createAccounts} from './src/ts/Data/Accounts';
 
