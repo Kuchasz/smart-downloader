@@ -56,30 +56,35 @@ ioo.on('download-progress', (prog: { id: number, progress: number }) => {
   	store.dispatch(action);
 });
 
-ioo.on('download-start', (x: { id: number, url: string}) => {
-	const action = fileActions.createAddFileAction(x.id, x.url);
+ioo.on('download-finish', (x: { id: number }) => {
+	const action = fileActions.createFinishFileDownloadAction(x.id);
+	store.dispatch(action);
+});
+
+ioo.on('download-start', (x: { id: number, name: string}) => {
+	const action = fileActions.createAddFileAction(x.id, x.name);
 	store.dispatch(action);
 });
 
 setTimeout(()=>{
   ioo.emit('download-file', {
     id: Math.floor(Math.random()*1000),
-    url:   'http://movietrailers.apple.com/movies/independent/max-steel/max-steel-trailer-1_h1080p.mov'
+    url:   'http://movietrailers.apple.com/movies/independent/neruda/neruda-trailer-1_h480p.mov'
     });
 }, 2500);
 
-
-setTimeout(()=>{
-	ioo.emit('download-file', {
-		id: Math.floor(Math.random()*1000),
-		url:   'http://movietrailers.apple.com/movies/independent/max-steel/max-steel-trailer-1_h1080p.mov'
-	});
-}, 5000);
-
-
-setTimeout(()=>{
-	ioo.emit('download-file', {
-		id: Math.floor(Math.random()*1000),
-		url:   'http://movietrailers.apple.com/movies/independent/max-steel/max-steel-trailer-1_h1080p.mov'
-	});
-}, 7500);
+//
+// setTimeout(()=>{
+// 	ioo.emit('download-file', {
+// 		id: Math.floor(Math.random()*1000),
+// 		url:   'http://movietrailers.apple.com/movies/independent/thehandmaiden/the-handmaiden-trailer-1_h480p.mov'
+// 	});
+// }, 5000);
+//
+//
+// setTimeout(()=>{
+// 	ioo.emit('download-file', {
+// 		id: Math.floor(Math.random()*1000),
+// 		url:   'http://movietrailers.apple.com/movies/sony_pictures/resident-evil-the-final-chapter/resident-evil-the-final-chapter-trailer-3_h480p.mov'
+// 	});
+// }, 7500);

@@ -28,11 +28,17 @@ export class UpdateFilesAction implements Action{
 	}
 }
 
+export class FinishFileDownloadAction implements Action{
+	type: string;
+	id: number;
+}
+
 class FileActionCreators {
 	createAddFileAction: ActionCreator<AddFileAction> = (id: number, name: string) => ({type: 'ADD_FILE', id, name });
 	createRemoveFileAction: ActionCreator<RemoveFileAction> = (id: number) => new RemoveFileAction(id);
 	createUpdateFileProgressAction: ActionCreator<UpdateFileProgressAction> = (id: number, progress: number) => ({ type: 'UPDATE_FILE_PROGRESS', id, progress });
 	createUpdateFilesAction: ActionCreator<UpdateFilesAction> = () => new UpdateFilesAction();
+	createFinishFileDownloadAction: ActionCreator<FinishFileDownloadAction> = (id: number) => ({type: 'FINISH_FILE_DOWNLOAD', id});
 };
 
 export const fileActionCreators = new FileActionCreators();
