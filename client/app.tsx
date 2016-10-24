@@ -3,7 +3,7 @@ import './src/views/index.html';
 
 import {createStore, combineReducers} from 'redux';
 import {render} from 'react-dom';
-import * as React from 'react';
+import * as React from 'react';
 import {Provider} from 'react-redux';
 import * as io from 'socket.io-client';
 
@@ -17,61 +17,76 @@ import {FileControls} from './src/views/Files/FileControls';
 import {Header} from './src/views/Header/Header';
 
 import {Files as FilesReducers} from './src/ts/Reducers/Files';
+import {FileDownloads as FileDownloadsReducers} from './src/ts/Reducers/FileDownloads';
+import {File, FileDownload} from "../domain/Files/Index";
 
 const reducers = combineReducers({
-  files: FilesReducers
+	files: FilesReducers,
+	fileDownloads: FileDownloadsReducers
 });
 
 const store = createStore(
 	reducers);
 
 render(
-  <AccountList accounts={createAccounts()}/>,
-  document.getElementById('accounts-list')
+	<AccountList accounts={createAccounts()}/>,
+	document.getElementById('accounts-list')
 );
 
 render(
-    <Provider store={store}>
-        <FileList/>
-    </Provider>,
-    document.getElementById('files-list')
+	<Provider store={store}>
+		<FileList/>
+	</Provider>,
+	document.getElementById('files-list')
 );
 
 render(
-  <Provider store={store}>
-    <FileControls/>
-  </Provider>,
-  document.getElementById('files-controls')
+	<Provider store={store}>
+		<FileControls/>
+	</Provider>,
+	document.getElementById('files-controls')
 );
 
 render(
-  <Header/>,
-  document.getElementById('header')
+	<Header/>,
+	document.getElementById('header')
 );
 
 var ioo = io('http://localhost:8081');
 
-ioo.on('download-progress', (prog: { id: number, progress: number }) => {
-	const action = fileActions.createUpdateFileProgressAction(prog.id, prog.progress);
-  	store.dispatch(action);
+ioo.on('connect', ()=>{
+	// setTimeout(()=> {
+		ioo.emit('download-file', {
+			id: Math.floor(Math.random() * 1000),
+			url: 'http://movietrailers.apple.com/movies/independent/neruda/neruda-trailer-1_h480p.mov'
+		});
+	// }, 2500);
 });
 
-ioo.on('download-finish', (x: { id: number }) => {
-	const action = fileActions.createFinishFileDownloadAction(x.id);
+// ioo.on('download-progress', (prog: { id: number, progress: number, speed: number }) => {
+// 	const action = fileActions.createUpdateFileProgressAction(prog.id, prog.progress, prog.speed);
+// 	store.dispatch(action);
+// });
+//
+// ioo.on('download-finish', (x: { id: number }) => {
+// 	const action = fileActions.createFinishFileDownloadAction(x.id);
+// 	store.dispatch(action);
+// });
+//
+// ioo.on('download-start', (x: { id: number, name: string}) => {
+	// console.log()
+	// const action = fileActions.createAddFileAction(x.id, x.name);
+	// store.dispatch(action);
+// });
+
+ioo.on('download-state', (state: { files: File[], fileDownloads: FileDownload[]})=> {
+	console.log(state);
+	const action = fileActions.createUpdateFilesAction(state.files, state.fileDownloads);
 	store.dispatch(action);
 });
 
-ioo.on('download-start', (x: { id: number, name: string}) => {
-	const action = fileActions.createAddFileAction(x.id, x.name);
-	store.dispatch(action);
-});
 
-setTimeout(()=>{
-  ioo.emit('download-file', {
-    id: Math.floor(Math.random()*1000),
-    url:   'http://movietrailers.apple.com/movies/independent/neruda/neruda-trailer-1_h480p.mov'
-    });
-}, 2500);
+
 
 //
 // setTimeout(()=>{

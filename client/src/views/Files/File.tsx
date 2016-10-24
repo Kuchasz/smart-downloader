@@ -1,13 +1,16 @@
 import * as React from 'react'
+import { File as FileModel, FileDownload } from "../../../../domain/Files/Index";
 
-export class File extends React.Component<any, any> {
+type FileProps = FileModel & FileDownload;
+
+export class File extends React.Component<FileProps, {}> {
   render (){
     return <tr>
-        <td><input type="checkbox" id="checkFile" defaultChecked={this.props.selected} /><label htmlFor="checkFile"><span></span></label></td>
-        <td>{this.props.fileName}</td>
-        <td><span className={this.props.status}>{this.props.status}</span></td>
-        <td>{this.props.speed} Mb/s</td>
-        <td>{this.props.estimatedTime}</td>
+        <td><input type="checkbox" id="checkFile" defaultChecked={false} /><label htmlFor="checkFile"><span></span></label></td>
+        <td>{this.props.name}</td>
+        <td><span className={'Progress'}>{'Progress'}</span></td>
+        <td>{(this.props.speed/1024).toFixed(2)} KB/s</td>
+        <td>{'XX:XX:XX'}</td>
         <td><div className="progressBar"><div style={{width: this.props.progress + '%', background: 'red'}}></div></div></td>
     </tr>;
 }

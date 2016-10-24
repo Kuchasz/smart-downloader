@@ -7,6 +7,8 @@ import * as pathApi from 'path';
 import * as socketIO from "socket.io";
 
 import {DownloadThread} from "./src/Downloader/Models/DownloadThread";
+import { File, FileDownload } from "../domain/Files/Index";
+import Timer = NodeJS.Timer;
 
 var httpServer = http.createServer();
 
@@ -15,6 +17,11 @@ httpServer.listen({
 });
 
 const io = socketIO(httpServer);
+
+const _fileStorage: {files: File[], fileDownloads: FileDownload[]} = {
+	files: [],
+	fileDownloads: []
+};
 
 const _getFileNameFromUrl = (url: string): string => (pathApi.basename(urlApi.parse(url).pathname));
 
@@ -135,7 +142,7 @@ const _createDownloadThreads = (fd: number, fileLength: number, threadsCount: nu
 	});
 };
 
-const __downloadFile = (url: string, id: number, sock: SocketIO.Socket, numberOfThreads: number) => {
+const __downloadFile = (url: string, id: number, numberOfThreads: number) => {
 
 	const _fileDownloadInfo = {
 		length: 0,
@@ -143,8 +150,15 @@ const __downloadFile = (url: string, id: number, sock: SocketIO.Socket, numberOf
 		downloadedLength: 0,
 		progress: undefined,
 		fileName: _getFileNameFromUrl(url),
-		processesFinished: 0
+		processesFinished: 0,
+		chunks: []
 	};
+
+	const _newFile: File = {id, name: _getFileNameFromUrl(url)};
+	const _newFileDownload: FileDownload = {fileId: id, speed: 0, progress: 0};
+
+	_fileStorage.files.push(_newFile);
+	_fileStorage.fileDownloads.push(_newFileDownload);
 
 	_getRemoteFileLength(url)
 		.then(length => {
@@ -159,21 +173,31 @@ const __downloadFile = (url: string, id: number, sock: SocketIO.Socket, numberOf
 		.then(() => _createDownloadThreads(_fileDownloadInfo.fd, _fileDownloadInfo.length, numberOfThreads))
 		.then(threads => (threads.map(thread => _startDownloadProcess(url, thread))))
 		.then((processes: DownloadProcess[]) => {
-			sock.emit('download-start', {id, name: _fileDownloadInfo.fileName});
+			_fileDownloadInfo.chunks.push({ timespan: new Date().valueOf(), size: 0 });
+
+			// sock.emit('download-start', { id, name: _fileDownloadInfo.fileName });
+
 			processes.forEach((process: DownloadProcess) => {
 				process.on('progress', (p: number) => {
 					_fileDownloadInfo.downloadedLength += p;
-					const progress = Math.floor(100 * (_fileDownloadInfo.downloadedLength / _fileDownloadInfo.length));
-					if (progress !== _fileDownloadInfo.progress) {
-						_fileDownloadInfo.progress = progress;
-						sock.emit('download-progress', {id, progress});
-						console.log(`Download progress: ${progress}%`);
-					}
+
+					const _currentChunk = new Date().valueOf();
+					_fileDownloadInfo.chunks.push({ timespan: _currentChunk, size: p });
+
+					_newFileDownload.speed = _fileDownloadInfo.chunks.filter(c => _currentChunk - c.timespan < 100).reduce((l, c) => ( l + c.size), 0);
+					_newFileDownload.progress = Math.floor(100 * (_fileDownloadInfo.downloadedLength / _fileDownloadInfo.length));
+
+					// if (_progress !== _fileDownloadInfo.progress) {
+						// _fileDownloadInfo.progress = _progress;
+						// sock.emit('download-progress', {id, _progress, speed: _sum.toPrecision(2)});
+						// console.log(`Download progress: ${_progress}%`);
+					// }
 				});
 				process.on('finnish', () => {
 					_fileDownloadInfo.processesFinished++;
 					if(_fileDownloadInfo.processesFinished === numberOfThreads){
-						sock.emit('download-finish', {id});
+						// sock.emit('download-finish', {id});
+						// console.log(_fileDownloadInfo.chunks);
 					}
 				});
 			});
@@ -182,12 +206,17 @@ const __downloadFile = (url: string, id: number, sock: SocketIO.Socket, numberOf
 
 io.on('connection', (socket) => {
 	console.log('a user connected');
+	let interval: Timer;
 
 	socket.on('download-file', (d)=> {
-		__downloadFile(d.url, d.id, socket, 5);
+		__downloadFile(d.url, d.id, 5);
+		interval = setInterval(() => {
+			socket.emit('download-state', _fileStorage);
+		}, 1000);
 	});
 
 	socket.on('disconnect', () => {
 		console.log('user disconnected');
+		clearInterval(interval);
 	});
 });
