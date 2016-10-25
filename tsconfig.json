@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "target": "es5",
+    "sourceMap": false,
+    "jsx": "react",
+    "outDir": "./build"
+  },
+  "include": [
+    "domain/**/*",
+    "server/**/*",
+    "typings/**/*"
+  ],
+  "exclude": [
+    "node_modules",
+    "client",
+    "communication"
+  ]
+}

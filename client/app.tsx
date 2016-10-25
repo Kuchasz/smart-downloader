@@ -56,6 +56,11 @@ render(
 	document.getElementById('header')
 );
 
+setTimeout(()=>{
+	var action = fileActions.createAddFileAction(Math.floor(Math.random() * 1000), 'http://movietrailers.apple.com/movies/independent/the-windmill/the-windmill-clip-1_h1080p.mov');
+	store.dispatch(action);
+}, 2000);
+
 // var ioo = io('http://localhost:8081');
 //
 // ioo.on('connect', ()=> {

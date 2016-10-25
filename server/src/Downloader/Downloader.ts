@@ -1,6 +1,5 @@
 import {ObjectValidator} from "./Services/ObjectValidator";
 import * as fs from 'fs';
-import * as Rx from 'rxjs/Rx';
 import { getDownloadService } from './Services/DownloadServiceProvider';
 const objectValidator = new ObjectValidator();
 
@@ -44,9 +43,5 @@ export class Downloader {
   }
 
   list(path){
-    Rx.Observable.bindNodeCallback(fs.readdir)(path)
-      // .mergeMap(fileNames => (fileNames.map(fileName => Rx.Observable.of(fileName))))
-      // .filter(fileName => this.fileNameTest.test(fileName))
-      .subscribe(fileName => console.log(fileName));
   }
 }

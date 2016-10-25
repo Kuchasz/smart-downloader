@@ -5,9 +5,9 @@ const path = require('path');
 const webpack = require('webpack');
 
 module.exports = {
-  entry: './app.tsx',
+  entry: './client/app.tsx',
   output:{
-    path: './build',
+    path: './build/client',
     filename: 'bundle.js'
   },
   devtool: "source-map",
@@ -20,27 +20,20 @@ module.exports = {
       },
       {
         test: /\.ts(x?)$/,
-        loader: 'ts-loader',
+        loader: 'ts-loader?configFileName=client.tsconfig.json',
         exclude: /node_modules/
       },
       {
         test: /\.html$/,
         loader: 'html',
         include: path.join(__dirname, 'src')
-      },
-      {
-        test: /\.js/,
-        loader: 'babel',
-        query: {
-          presets: ['es2015']
-        }
       }
     ]
   },
   postcss: [autoprefixer()],
   plugins: [
     new HtmlWebpackPlugin({
-      template: './src/views/index.html'
+      template: './client/src/views/index.html'
     }),
     new ExtractTextPlugin('[name].css')
   ],

@@ -46,8 +46,8 @@ const _getHeadersFromRequestResponse = (request: http.ClientRequest): Promise<nu
 	});
 };
 
-const _handleRequestError = (request: http.ClientRequest): Promise<void> => {
-	return new Promise<void>((resolve, reject)=> {
+const _handleRequestError = (request: http.ClientRequest): Promise<Error> => {
+	return new Promise<Error>((resolve, reject)=> {
 		request.once('error', (err)=> {
 			resolve(err);
 		});
@@ -175,8 +175,8 @@ const __downloadFile = (url: string, id: number, numberOfThreads: number) => {
 		.then((processes: DownloadProcess[]) => {
 			_newFileDownload.state = FileDownloadState.Progress;
 
-			let _downloadSpeedCalculator = setInterval(()=>{
-				_newFileDownload.speed = _fileDownloadInfo.chunks.reduce((l, c)=>(l+c), 0)*100;
+			let _downloadSpeedCalculator = setInterval(()=> {
+				_newFileDownload.speed = _fileDownloadInfo.chunks.reduce((l, c)=>(l + c), 0) * 100;
 				_fileDownloadInfo.chunks = [];
 			}, 10);
 
@@ -204,11 +204,13 @@ io.on('connection', (socket) => {
 	console.log('a user connected');
 	let interval: Timer;
 
-	socket.on('download-file', (d)=> {
-		__downloadFile(d.url, d.id, 5);
-		interval = setInterval(() => {
-			socket.emit('download-state', _fileStorage);
-		}, 250);
+	socket.on('message', (d)=> {
+		if (d.type === 'ADD_FILE') {
+			__downloadFile(d.url, d.id, 5);
+			interval = setInterval(() => {
+				socket.send(Object.assign({}, _fileStorage, {type: 'UPDATE_FILES'}));
+			}, 250);
+		}
 	});
 
 	socket.on('disconnect', () => {

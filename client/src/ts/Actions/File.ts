@@ -1,44 +1,37 @@
-import { ActionCreator, Action } from "redux";
+import { ActionCreator } from "redux";
 import { File, FileDownload } from "../../../../domain/Files/Index";
+import {Action, ActionScope} from "../../../../communication/Actions/Action";
 
-export class AddFileAction implements Action{
-	type: string;
-	constructor(public id: number, public name: string){
-		this.type = 'ADD_FILE';
-	}
+export interface AddFileAction extends Action{
+	id: number;
+	url: string;
 }
 
-export class RemoveFileAction implements Action{
-	type: string;
-	constructor(public id: number){
-		this.type = 'REMOVE_FILE';
-	}
+export interface RemoveFileAction extends Action{
+	id: number;
 }
 
-export class UpdateFileProgressAction implements Action{
-	type: string;
-	constructor(public id: number, public progress: number, public speed: number){
-		this.type = 'UPDATE_FILE_PROGRESS';
-	}
+export interface UpdateFileProgressAction extends Action{
+	id: number;
+	progress: number;
+	speed: number;
 }
 
-export class FinishFileDownloadAction implements Action{
-	type: string;
+export interface FinishFileDownloadAction extends Action{
 	id: number;
 }
 
 export interface UpdateFilesAction extends Action {
-	type: string;
 	files: File[];
 	fileDownloads: FileDownload[];
 }
 
 class FileActionCreators {
-	createAddFileAction: ActionCreator<AddFileAction> = (id: number, name: string) => ({type: 'ADD_FILE', id, name });
-	createRemoveFileAction: ActionCreator<RemoveFileAction> = (id: number) => new RemoveFileAction(id);
-	createUpdateFileProgressAction: ActionCreator<UpdateFileProgressAction> = (id: number, progress: number, speed: number) => ({ type: 'UPDATE_FILE_PROGRESS', id, progress, speed });
-	createUpdateFilesAction: ActionCreator<UpdateFilesAction> = (files: File[], fileDownloads: FileDownload[]) => ({ type: 'UPDATE_FILES', files, fileDownloads });
-	createFinishFileDownloadAction: ActionCreator<FinishFileDownloadAction> = (id: number) => ({type: 'FINISH_FILE_DOWNLOAD', id});
+	createAddFileAction: ActionCreator<AddFileAction> = (id: number, url: string) => ({type: 'ADD_FILE', executionMode: ActionScope.Both, id, url });
+	createRemoveFileAction: ActionCreator<RemoveFileAction> = (id: number) => ({type: 'REMOVE_FILE', executionMode: ActionScope.Both, id});
+	createUpdateFileProgressAction: ActionCreator<UpdateFileProgressAction> = (id: number, progress: number, speed: number) => ({ type: 'UPDATE_FILE_PROGRESS', executionMode: ActionScope.Local, id, progress, speed });
+	createUpdateFilesAction: ActionCreator<UpdateFilesAction> = (files: File[], fileDownloads: FileDownload[]) => ({ type: 'UPDATE_FILES', executionMode: ActionScope.Local, files, fileDownloads });
+	createFinishFileDownloadAction: ActionCreator<FinishFileDownloadAction> = (id: number) => ({type: 'FINISH_FILE_DOWNLOAD', executionMode: ActionScope.Local, id});
 };
 
 export const fileActionCreators = new FileActionCreators();
