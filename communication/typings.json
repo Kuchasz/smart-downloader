@@ -2,6 +2,7 @@
   "name": "communication",
   "dependencies": {},
   "globalDependencies": {
-    "redux": "registry:dt/redux#3.5.2+20160703092728"
+    "redux": "registry:dt/redux#3.5.2+20160703092728",
+    "socket.io-client": "registry:dt/socket.io-client#1.4.4+20160317120654"
   }
 }

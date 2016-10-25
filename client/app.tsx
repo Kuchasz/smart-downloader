@@ -19,6 +19,8 @@ import {Header} from './src/views/Header/Header';
 import {Files as FilesReducers} from './src/ts/Reducers/Files';
 import {FileDownloads as FileDownloadsReducers} from './src/ts/Reducers/FileDownloads';
 import {File, FileDownload} from "../domain/Files/Index";
+import {applyMiddleware} from "redux";
+import {scopedActionMiddleware} from "../communication/Middleware/ScopedActionMiddleware";
 
 const reducers = combineReducers({
 	files: FilesReducers,
@@ -26,7 +28,9 @@ const reducers = combineReducers({
 });
 
 const store = createStore(
-	reducers);
+	reducers,
+	applyMiddleware(scopedActionMiddleware('http://localhost:8081'))
+);
 
 render(
 	<AccountList accounts={createAccounts()}/>,
@@ -52,48 +56,30 @@ render(
 	document.getElementById('header')
 );
 
-var ioo = io('http://localhost:8081');
-
-ioo.on('connect', ()=>{
-	// setTimeout(()=> {
-		ioo.emit('download-file', {
-			id: Math.floor(Math.random() * 1000),
-			url: 'http://movietrailers.apple.com/movies/independent/neruda/neruda-trailer-1_h480p.mov'
-		});
-	// }, 2500);
-});
-
-// ioo.on('download-progress', (prog: { id: number, progress: number, speed: number }) => {
-// 	const action = fileActions.createUpdateFileProgressAction(prog.id, prog.progress, prog.speed);
+// var ioo = io('http://localhost:8081');
+//
+// ioo.on('connect', ()=> {
+// 	ioo.emit('download-file', {
+// 		id: Math.floor(Math.random() * 1000),
+// 		url: 'http://movietrailers.apple.com/movies/independent/neruda/neruda-trailer-1_h480p.mov'
+// 	});
+// });
+//
+// ioo.on('download-state', (state: { files: File[], fileDownloads: FileDownload[]})=> {
+// 	const action = fileActions.createUpdateFilesAction(state.files, state.fileDownloads);
 // 	store.dispatch(action);
 // });
 //
-// ioo.on('download-finish', (x: { id: number }) => {
-// 	const action = fileActions.createFinishFileDownloadAction(x.id);
-// 	store.dispatch(action);
-// });
+// setTimeout(()=> {
+// 	ioo.emit('download-file', {
+// 		id: Math.floor(Math.random() * 1000),
+// 		url: 'http://movietrailers.apple.com/movies/independent/thehandmaiden/the-handmaiden-trailer-1_h480p.mov'
+// 	});
+// }, 2600);
 //
-// ioo.on('download-start', (x: { id: number, name: string}) => {
-	// console.log()
-	// const action = fileActions.createAddFileAction(x.id, x.name);
-	// store.dispatch(action);
-// });
-
-ioo.on('download-state', (state: { files: File[], fileDownloads: FileDownload[]})=> {
-	const action = fileActions.createUpdateFilesAction(state.files, state.fileDownloads);
-	store.dispatch(action);
-});
-
-setTimeout(()=>{
-	ioo.emit('download-file', {
-		id: Math.floor(Math.random()*1000),
-		url:   'http://movietrailers.apple.com/movies/independent/thehandmaiden/the-handmaiden-trailer-1_h480p.mov'
-	});
-}, 2600);
-
-setTimeout(()=>{
-	ioo.emit('download-file', {
-		id: Math.floor(Math.random()*1000),
-		url:   'http://movietrailers.apple.com/movies/sony_pictures/resident-evil-the-final-chapter/resident-evil-the-final-chapter-trailer-3_h480p.mov'
-	});
-}, 2700);
+// setTimeout(()=> {
+// 	ioo.emit('download-file', {
+// 		id: Math.floor(Math.random() * 1000),
+// 		url: 'http://movietrailers.apple.com/movies/sony_pictures/resident-evil-the-final-chapter/resident-evil-the-final-chapter-trailer-3_h480p.mov'
+// 	});
+// }, 2700);
