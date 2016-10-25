@@ -72,12 +72,16 @@ const _startDownloadProcess = (url: string, thread: DownloadThread): DownloadPro
 
 	_req.once('response', (msg: http.IncomingMessage)=> {
 		let position: number = thread.start;
-		downloadProcess.emit('start');
-
-		msg.on('data', (buffer: Buffer)=> {
+		msg.socket.addListener('data', (buffer: Buffer)=>{
 			fs.write(thread.fd, buffer, 0, buffer.length, position);
 			position += buffer.length;
 			downloadProcess.emit('progress', buffer.length);
+		});
+		downloadProcess.emit('start');
+		msg.on('data', (buffer: Buffer)=> {
+			// fs.write(thread.fd, buffer, 0, buffer.length, position);
+			// position += buffer.length;
+			// downloadProcess.emit('progress', buffer.length);
 		});
 
 		msg.on('end', ()=> {
@@ -176,9 +180,9 @@ const __downloadFile = (url: string, id: number, numberOfThreads: number) => {
 			_newFileDownload.state = FileDownloadState.Progress;
 
 			let _downloadSpeedCalculator = setInterval(()=> {
-				_newFileDownload.speed = _fileDownloadInfo.chunks.reduce((l, c)=>(l + c), 0) * 100;
+				_newFileDownload.speed = _fileDownloadInfo.chunks.reduce((l, c)=>(l + c), 0);
 				_fileDownloadInfo.chunks = [];
-			}, 10);
+			}, 1000);
 
 			processes.forEach((process: DownloadProcess) => {
 				process.on('progress', (p: number) => {
