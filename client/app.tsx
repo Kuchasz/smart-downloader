@@ -80,26 +80,20 @@ ioo.on('connect', ()=>{
 // });
 
 ioo.on('download-state', (state: { files: File[], fileDownloads: FileDownload[]})=> {
-	console.log(state);
 	const action = fileActions.createUpdateFilesAction(state.files, state.fileDownloads);
 	store.dispatch(action);
 });
 
+setTimeout(()=>{
+	ioo.emit('download-file', {
+		id: Math.floor(Math.random()*1000),
+		url:   'http://movietrailers.apple.com/movies/independent/thehandmaiden/the-handmaiden-trailer-1_h480p.mov'
+	});
+}, 2600);
 
-
-
-//
-// setTimeout(()=>{
-// 	ioo.emit('download-file', {
-// 		id: Math.floor(Math.random()*1000),
-// 		url:   'http://movietrailers.apple.com/movies/independent/thehandmaiden/the-handmaiden-trailer-1_h480p.mov'
-// 	});
-// }, 5000);
-//
-//
-// setTimeout(()=>{
-// 	ioo.emit('download-file', {
-// 		id: Math.floor(Math.random()*1000),
-// 		url:   'http://movietrailers.apple.com/movies/sony_pictures/resident-evil-the-final-chapter/resident-evil-the-final-chapter-trailer-3_h480p.mov'
-// 	});
-// }, 7500);
+setTimeout(()=>{
+	ioo.emit('download-file', {
+		id: Math.floor(Math.random()*1000),
+		url:   'http://movietrailers.apple.com/movies/sony_pictures/resident-evil-the-final-chapter/resident-evil-the-final-chapter-trailer-3_h480p.mov'
+	});
+}, 2700);

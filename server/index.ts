@@ -7,7 +7,7 @@ import * as pathApi from 'path';
 import * as socketIO from "socket.io";
 
 import {DownloadThread} from "./src/Downloader/Models/DownloadThread";
-import { File, FileDownload } from "../domain/Files/Index";
+import {File, FileDownload, FileDownloadState} from "../domain/Files/Index";
 import Timer = NodeJS.Timer;
 
 var httpServer = http.createServer();
@@ -155,7 +155,7 @@ const __downloadFile = (url: string, id: number, numberOfThreads: number) => {
 	};
 
 	const _newFile: File = {id, name: _getFileNameFromUrl(url)};
-	const _newFileDownload: FileDownload = {fileId: id, speed: 0, progress: 0};
+	const _newFileDownload: FileDownload = {fileId: id, speed: 0, progress: 0, state: FileDownloadState.Init};
 
 	_fileStorage.files.push(_newFile);
 	_fileStorage.fileDownloads.push(_newFileDownload);
@@ -173,31 +173,27 @@ const __downloadFile = (url: string, id: number, numberOfThreads: number) => {
 		.then(() => _createDownloadThreads(_fileDownloadInfo.fd, _fileDownloadInfo.length, numberOfThreads))
 		.then(threads => (threads.map(thread => _startDownloadProcess(url, thread))))
 		.then((processes: DownloadProcess[]) => {
-			_fileDownloadInfo.chunks.push({ timespan: new Date().valueOf(), size: 0 });
+			_newFileDownload.state = FileDownloadState.Progress;
 
-			// sock.emit('download-start', { id, name: _fileDownloadInfo.fileName });
+			let _downloadSpeedCalculator = setInterval(()=>{
+				_newFileDownload.speed = _fileDownloadInfo.chunks.reduce((l, c)=>(l+c), 0)*100;
+				_fileDownloadInfo.chunks = [];
+			}, 10);
 
 			processes.forEach((process: DownloadProcess) => {
 				process.on('progress', (p: number) => {
 					_fileDownloadInfo.downloadedLength += p;
 
-					const _currentChunk = new Date().valueOf();
-					_fileDownloadInfo.chunks.push({ timespan: _currentChunk, size: p });
+					_fileDownloadInfo.chunks.push(p);
 
-					_newFileDownload.speed = _fileDownloadInfo.chunks.filter(c => _currentChunk - c.timespan < 100).reduce((l, c) => ( l + c.size), 0);
 					_newFileDownload.progress = Math.floor(100 * (_fileDownloadInfo.downloadedLength / _fileDownloadInfo.length));
 
-					// if (_progress !== _fileDownloadInfo.progress) {
-						// _fileDownloadInfo.progress = _progress;
-						// sock.emit('download-progress', {id, _progress, speed: _sum.toPrecision(2)});
-						// console.log(`Download progress: ${_progress}%`);
-					// }
 				});
 				process.on('finnish', () => {
 					_fileDownloadInfo.processesFinished++;
-					if(_fileDownloadInfo.processesFinished === numberOfThreads){
-						// sock.emit('download-finish', {id});
-						// console.log(_fileDownloadInfo.chunks);
+					if (_fileDownloadInfo.processesFinished === numberOfThreads) {
+						_newFileDownload.state = FileDownloadState.Ended;
+						clearInterval(_downloadSpeedCalculator);
 					}
 				});
 			});
@@ -212,7 +208,7 @@ io.on('connection', (socket) => {
 		__downloadFile(d.url, d.id, 5);
 		interval = setInterval(() => {
 			socket.emit('download-state', _fileStorage);
-		}, 1000);
+		}, 250);
 	});
 
 	socket.on('disconnect', () => {
