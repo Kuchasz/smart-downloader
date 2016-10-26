@@ -51,31 +51,3 @@ render(
 	<Header/>,
 	document.getElementById('header')
 );
-
-// var ioo = io('http://localhost:8081');
-//
-// ioo.on('connect', ()=> {
-// 	ioo.emit('download-file', {
-// 		id: Math.floor(Math.random() * 1000),
-// 		url: 'http://movietrailers.apple.com/movies/independent/neruda/neruda-trailer-1_h480p.mov'
-// 	});
-// });
-//
-// ioo.on('download-state', (state: { files: File[], fileDownloads: FileDownload[]})=> {
-// 	const action = fileActions.createUpdateFilesAction(state.files, state.fileDownloads);
-// 	store.dispatch(action);
-// });
-//
-// setTimeout(()=> {
-// 	ioo.emit('download-file', {
-// 		id: Math.floor(Math.random() * 1000),
-// 		url: 'http://movietrailers.apple.com/movies/independent/thehandmaiden/the-handmaiden-trailer-1_h480p.mov'
-// 	});
-// }, 2600);
-//
-// setTimeout(()=> {
-// 	ioo.emit('download-file', {
-// 		id: Math.floor(Math.random() * 1000),
-// 		url: 'http://movietrailers.apple.com/movies/sony_pictures/resident-evil-the-final-chapter/resident-evil-the-final-chapter-trailer-3_h480p.mov'
-// 	});
-// }, 2700);
