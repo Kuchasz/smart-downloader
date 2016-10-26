@@ -1,6 +1,6 @@
 import { ActionCreator } from "redux";
-import { File, FileDownload } from "../../../../domain/Files/Index";
-import {Action, ActionScope} from "../../../../communication/Actions/Action";
+import { File, FileDownload } from "../../../domain/Files/Index";
+import {Action, ActionScope} from "../../../communication/Actions/Action";
 
 export interface AddFileAction extends Action{
 	id: number;

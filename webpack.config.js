@@ -5,7 +5,7 @@ const path = require('path');
 const webpack = require('webpack');
 
 module.exports = {
-  entry: './client/app.tsx',
+  entry: './client/index.tsx',
   output:{
     path: './build/client',
     filename: 'bundle.js'
@@ -16,7 +16,7 @@ module.exports = {
       {
         test: /\.scss$/,
         loader: ExtractTextPlugin.extract('style','!css!postcss!sass'),
-        include: path.join(__dirname, 'src')
+        include: path.join(__dirname, 'client', 'src')
       },
       {
         test: /\.ts(x?)$/,
@@ -26,7 +26,7 @@ module.exports = {
       {
         test: /\.html$/,
         loader: 'html',
-        include: path.join(__dirname, 'src')
+        include: path.join(__dirname, 'client', 'src')
       }
     ]
   },

@@ -5,20 +5,16 @@ import {createStore, combineReducers} from 'redux';
 import {render} from 'react-dom';
 import * as React from 'react';
 import {Provider} from 'react-redux';
-import * as io from 'socket.io-client';
 
-import {createAccounts} from './src/ts/Data/Accounts';
-
-import {fileActionCreators as fileActions} from './src/ts/Actions/File';
+import {createAccounts} from './src/Data/Accounts';
 
 import {AccountList} from './src/views/Accounts/AccountList';
 import {FileList} from './src/views/Files/FileList';
 import {FileControls} from './src/views/Files/FileControls';
 import {Header} from './src/views/Header/Header';
 
-import {Files as FilesReducers} from './src/ts/Reducers/Files';
-import {FileDownloads as FileDownloadsReducers} from './src/ts/Reducers/FileDownloads';
-import {File, FileDownload} from "../domain/Files/Index";
+import {Files as FilesReducers} from './src/Reducers/Files';
+import {FileDownloads as FileDownloadsReducers} from './src/Reducers/FileDownloads';
 import {applyMiddleware} from "redux";
 import {scopedActionMiddleware} from "../communication/Middleware/ScopedActionMiddleware";
 

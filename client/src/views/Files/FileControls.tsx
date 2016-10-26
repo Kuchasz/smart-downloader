@@ -1,6 +1,6 @@
 import * as React from 'react'
 import {connect} from 'react-redux';
-import {fileActionCreators} from '../../ts/Actions/File';
+import {fileActionCreators} from '../../Actions/File';
 
 const _links = [
 	'http://movietrailers.apple.com/movies/oscilloscope/always-shine/always-shine-trailer-1_h1080p.mov',

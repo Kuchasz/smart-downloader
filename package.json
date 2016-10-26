@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "compile-client": "webpack --config client/webpack.config.js --progress --c --w",
+    "compile-client": "webpack --progress --c --w",
     "compile-server": "tsc",
     "start-client": "http-server build/client",
     "start-server": "node build/server/index.js",
