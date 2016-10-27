@@ -72,20 +72,16 @@ const _startDownloadProcess = (url: string, thread: DownloadThread): DownloadPro
 
 	_req.once('response', (msg: http.IncomingMessage)=> {
 		let position: number = thread.start;
-		msg.socket.addListener('data', (buffer: Buffer)=>{
+
+		downloadProcess.emit('start');
+		msg.on('data', (buffer: Buffer)=> {
 			fs.write(thread.fd, buffer, 0, buffer.length, position);
 			position += buffer.length;
 			downloadProcess.emit('progress', buffer.length);
 		});
-		downloadProcess.emit('start');
-		msg.on('data', (buffer: Buffer)=> {
-			// fs.write(thread.fd, buffer, 0, buffer.length, position);
-			// position += buffer.length;
-			// downloadProcess.emit('progress', buffer.length);
-		});
 
 		msg.on('end', ()=> {
-			downloadProcess.emit('finnish');
+			downloadProcess.emit('finish');
 		});
 
 	});
@@ -120,7 +116,7 @@ const _resizeLocalFile = (fd: number, length: number): Promise<void> => {
 	});
 };
 
-type downloadProcessEvents = 'start' | 'progress' | 'finnish';
+type downloadProcessEvents = 'start' | 'progress' | 'finish';
 
 class DownloadProcess extends events.EventEmitter {
 	constructor(public start: number, public end: number, public fd: number) {
@@ -190,10 +186,10 @@ const __downloadFile = (url: string, id: number, numberOfThreads: number) => {
 
 					_fileDownloadInfo.chunks.push(p);
 
-					_newFileDownload.progress = Math.floor(100 * (_fileDownloadInfo.downloadedLength / _fileDownloadInfo.length));
+					_newFileDownload.progress = 100 * (_fileDownloadInfo.downloadedLength / _fileDownloadInfo.length);
 
 				});
-				process.on('finnish', () => {
+				process.on('finish', () => {
 					_fileDownloadInfo.processesFinished++;
 					if (_fileDownloadInfo.processesFinished === numberOfThreads) {
 						_newFileDownload.state = FileDownloadState.Ended;
@@ -204,21 +200,32 @@ const __downloadFile = (url: string, id: number, numberOfThreads: number) => {
 		});
 };
 
-io.on('connection', (socket) => {
-	console.log('a user connected');
-	let interval: Timer;
+interface ConnectedClient {
+	socket: SocketIOClient.Socket;
+}
+
+const _connectedClients: ConnectedClient[] = [];
+
+setInterval(() => {
+	const _progressMessage = Object.assign({}, _fileStorage, {type: 'UPDATE_FILES'});
+	_connectedClients.forEach(c => {
+		c.socket.send(_progressMessage);
+	});
+}, 250);
+
+io.on('connection', (socket: SocketIOClient.Socket) => {
+	console.log(`User connected: ${socket.id}`);
+	const _client = {socket};
+	_connectedClients.push(_client);
 
 	socket.on('message', (d)=> {
 		if (d.type === 'ADD_FILE') {
 			__downloadFile(d.url, d.id, 5);
-			interval = setInterval(() => {
-				socket.send(Object.assign({}, _fileStorage, {type: 'UPDATE_FILES'}));
-			}, 250);
 		}
 	});
 
 	socket.on('disconnect', () => {
-		console.log('user disconnected');
-		clearInterval(interval);
+		console.log('User disconnected');
+		_connectedClients.splice(_connectedClients.indexOf(_client), 1);
 	});
 });
