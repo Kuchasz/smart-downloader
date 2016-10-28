@@ -45,7 +45,7 @@ io.on('connection', (socket: SocketIOClient.Socket) => {
 
 	socket.on('message', (d)=> {
 		if (d.type === 'ADD_FILE') {
-			_downloader.download(d.url, d.id, 5);
+			const _process = _downloader.download(d.url, d.id, 5);
 		}
 	});
 

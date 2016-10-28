@@ -7,7 +7,7 @@ import {ClientRequest} from "http";
 import {request} from "http";
 import {ftruncate} from "fs";
 import {File} from './Entities/File';
-import {FileDownloadProcess} from "./Entities/FileDownloadProcess";
+import {FileDownloadProcess, FileDownloadProcessEvent} from "./Entities/FileDownloadProcess";
 
 export class Downloader {
 
@@ -37,10 +37,12 @@ export class Downloader {
 
 		// fileRepository.save(_newFile);
 		const _process = new FileDownloadProcess();
+		_process.emit('FetchingFileInfo');
 
 		this._getRemoteFileLength(url)
 			.then(length => {
 				fileLength = length;
+				_process.emit('LocalFileInitialisation');
 				return this._createLocalFile(fileName)
 			})
 			.then(() => this._openLocalFile(fileName))
@@ -51,7 +53,7 @@ export class Downloader {
 			.then(() => this._createDownloadThreads(_fileDownloadInfo.fd, fileLength, numberOfThreads))
 			.then(threads => (threads.map(thread => this._startDownload(url, thread))))
 			.then((threads: FileDownloadThread[]) => {
-
+				_process.emit('DownloadStarted');
 				_newFileDownload.state = FileDownloadState.Progress;
 
 				let _downloadSpeedCalculator = setInterval(()=> {
@@ -61,6 +63,7 @@ export class Downloader {
 
 				threads.forEach((thread: FileDownloadThread) => {
 					thread.on('progress', (p: number) => {
+						_process.emit('DownloadProgress');
 						_fileDownloadInfo.downloadedLength += p;
 
 						_fileDownloadInfo.chunks.push(p);
@@ -71,6 +74,7 @@ export class Downloader {
 					thread.on('finish', () => {
 						_fileDownloadInfo.processesFinished++;
 						if (_fileDownloadInfo.processesFinished === numberOfThreads) {
+							_process.emit('DownloadFinish');
 							_newFileDownload.state = FileDownloadState.Ended;
 							clearInterval(_downloadSpeedCalculator);
 						}
