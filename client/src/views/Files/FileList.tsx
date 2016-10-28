@@ -1,11 +1,10 @@
 import * as React from 'react'
 import {File as FileComponent} from './File';
 import {connect} from 'react-redux';
-import {File, FileDownload} from "../../../../domain/Files/Index";
+import {File} from "../../../../domain/Files/Index";
 
 interface FileListProps {
 	files: File[];
-	fileDownloads: FileDownload[];
 }
 
 class FileListComponent extends React.Component<FileListProps, {}> {
@@ -23,13 +22,12 @@ class FileListComponent extends React.Component<FileListProps, {}> {
 			</thead>
 			<tbody>
 			{this.props.files.map(file => (<FileComponent
-				key={file.id} {...file} {...(this.props.fileDownloads.find(fd => fd.fileId === file.id))} />))}
+				key={file.id} {...file} {...file.download} />))}
 			</tbody>
 		</table>;
 	}
 }
 
 export const FileList = connect(state =>({
-	files: state.files,
-	fileDownloads: state.fileDownloads
+	files: state.files
 }))(FileListComponent);

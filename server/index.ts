@@ -18,9 +18,8 @@ httpServer.listen({
 
 const io = socketIO(httpServer);
 
-const _fileStorage: {files: File[], fileDownloads: FileDownload[]} = {
-	files: [],
-	fileDownloads: []
+const _fileStorage: {files: File[]} = {
+	files: []
 };
 
 const _getFileNameFromUrl = (url: string): string => (pathApi.basename(urlApi.parse(url).pathname));
@@ -154,11 +153,10 @@ const __downloadFile = (url: string, id: number, numberOfThreads: number) => {
 		chunks: []
 	};
 
-	const _newFile: File = {id, name: _getFileNameFromUrl(url)};
-	const _newFileDownload: FileDownload = {fileId: id, speed: 0, progress: 0, state: FileDownloadState.Init};
+	const _newFileDownload: FileDownload = {speed: 0, progress: 0, state: FileDownloadState.Init};
+	const _newFile: File = {id, name: _getFileNameFromUrl(url), download: _newFileDownload};
 
 	_fileStorage.files.push(_newFile);
-	_fileStorage.fileDownloads.push(_newFileDownload);
 
 	_getRemoteFileLength(url)
 		.then(length => {

@@ -9,7 +9,6 @@ export enum FileDownloadState {
 }
 
 export interface FileDownload {
-	fileId: number;
 	speed: number;
 	progress: number;
 	state: FileDownloadState;

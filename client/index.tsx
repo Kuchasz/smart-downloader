@@ -14,13 +14,11 @@ import {FileControls} from './src/views/Files/FileControls';
 import {Header} from './src/views/Header/Header';
 
 import {Files as FilesReducers} from './src/Reducers/Files';
-import {FileDownloads as FileDownloadsReducers} from './src/Reducers/FileDownloads';
 import {applyMiddleware} from "redux";
 import {scopedActionMiddleware} from "../communication/Middleware/ScopedActionMiddleware";
 
 const reducers = combineReducers({
-	files: FilesReducers,
-	fileDownloads: FileDownloadsReducers
+	files: FilesReducers
 });
 
 const store = createStore(
