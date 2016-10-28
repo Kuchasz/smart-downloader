@@ -5,8 +5,8 @@ export interface IFileRepository{
 	save(file: File): void;
 }
 
-export class MemoryFileRepository implements IFileRepository{
-	files: File[];
+class MemoryFileRepository implements IFileRepository{
+	private files: File[];
 
 	constructor(){
 		this.files = [];
@@ -20,3 +20,5 @@ export class MemoryFileRepository implements IFileRepository{
 		return this.files;
 	}
 }
+
+export const fileRepository: IFileRepository = new MemoryFileRepository();

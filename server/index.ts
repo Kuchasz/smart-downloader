@@ -9,6 +9,7 @@ import * as socketIO from "socket.io";
 import {DownloadThread} from "./src/Downloader/Models/DownloadThread";
 import {File, FileDownload, FileDownloadState} from "../domain/Files/Index";
 import Timer = NodeJS.Timer;
+import {fileRepository} from "../data/repositories/Files/fileRepository";
 
 var httpServer = http.createServer();
 
@@ -17,10 +18,6 @@ httpServer.listen({
 });
 
 const io = socketIO(httpServer);
-
-const _fileStorage: {files: File[]} = {
-	files: []
-};
 
 const _getFileNameFromUrl = (url: string): string => (pathApi.basename(urlApi.parse(url).pathname));
 
@@ -156,7 +153,7 @@ const __downloadFile = (url: string, id: number, numberOfThreads: number) => {
 	const _newFileDownload: FileDownload = {speed: 0, progress: 0, state: FileDownloadState.Init};
 	const _newFile: File = {id, name: _getFileNameFromUrl(url), download: _newFileDownload};
 
-	_fileStorage.files.push(_newFile);
+	fileRepository.save(_newFile);
 
 	_getRemoteFileLength(url)
 		.then(length => {
@@ -205,7 +202,7 @@ interface ConnectedClient {
 const _connectedClients: ConnectedClient[] = [];
 
 setInterval(() => {
-	const _progressMessage = Object.assign({}, _fileStorage, {type: 'UPDATE_FILES'});
+	const _progressMessage = Object.assign({}, fileRepository.getAll(), {type: 'UPDATE_FILES'});
 	_connectedClients.forEach(c => {
 		c.socket.send(_progressMessage);
 	});
@@ -214,6 +211,7 @@ setInterval(() => {
 io.on('connection', (socket: SocketIOClient.Socket) => {
 	console.log(`User connected: ${socket.id}`);
 	const _client = {socket};
+
 	_connectedClients.push(_client);
 
 	socket.on('message', (d)=> {
