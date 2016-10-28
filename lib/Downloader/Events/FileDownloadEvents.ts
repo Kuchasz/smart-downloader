@@ -1,0 +1,1 @@
+export type FileDownloadEvents = 'start' | 'progress' | 'finish';

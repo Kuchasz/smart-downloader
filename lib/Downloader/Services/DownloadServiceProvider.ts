@@ -14,4 +14,4 @@ export const getDownloadService = (url) => {
     const serviceProvider = serviceProviders.find(s => s.regExp.test(url));
     if(!serviceProvider) throw new UrlNotSupportedException();
     return serviceProvider.service;
-}
+};
