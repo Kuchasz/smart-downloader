@@ -51,18 +51,17 @@ io.on('connection', (socket: SocketIOClient.Socket) => {
             };
 
             _process.on('DownloadStarted', () => {
-                console.log('download-start');
                 _file.download.state = FileDownloadState.Init;
                 fileRepository.save(_file);
             });
 
             _process.on('DownloadFinish', () => {
-                console.log('download-finish');
                 _file.download.state = FileDownloadState.Ended;
             });
 
             _process.on("DownloadProgress", (p) => {
                 _file.download.state = FileDownloadState.Progress;
+                _file.download.progress = p;
             });
         }
     });
