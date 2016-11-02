@@ -7,7 +7,7 @@ import {ClientRequest} from "http";
 import {request} from "http";
 import {ftruncate} from "fs";
 import {File} from './Entities/File';
-import {FileDownloadProcess, FileDownloadProcessEvent} from "./Entities/FileDownloadProcess";
+import {FileDownloadProcess, FileDownloadProcessEvent, FileDownloadProcessState} from "./Entities/FileDownloadProcess";
 
 export class Downloader {
 
@@ -23,26 +23,25 @@ export class Downloader {
         const _fileDownloadInfo = {
             fd: 0,
             downloadedLength: 0,
-            progress: undefined,
             processesFinished: 0,
             chunks: []
         };
 
         //should not use domain objects, create downloader-lib objects
-        const _newFileDownload: FileDownload = {speed: 0, progress: 0, state: FileDownloadState.Init};
+        // const _newFileDownload: FileDownload = {speed: 0, progress: 0, state: FileDownloadState.Init};
         // const _newFile: File = {id, name: _getFileNameFromUrl(url), download: _newFileDownload, length: 0};
         const _newFile = new File(url);
 
         let fileLength, fileName = _newFile.fileName;
 
         // fileRepository.save(_newFile);
-        const _process = new FileDownloadProcess();
-        _process.emit('FetchingFileInfo');
+        const _process = new FileDownloadProcess(_newFile);
+        _process.emit('stateChanged', FileDownloadProcessState.GettingInfo);
 
         this._getRemoteFileLength(url)
             .then(length => {
                 fileLength = length;
-                _process.emit('LocalFileInitialisation');
+                _process.emit('stateChanged', FileDownloadProcessState.Initialisation);
                 return this._createLocalFile(fileName)
             })
             .then(() => this._openLocalFile(fileName))
@@ -54,29 +53,30 @@ export class Downloader {
             .then(threads => (threads.map(thread => this._startDownload(url, thread))))
             .then((threads: FileDownloadThread[]) => {
 
-                _newFileDownload.state = FileDownloadState.Progress;
-
                 let _downloadSpeedCalculator = setInterval(()=> {
-                    _newFileDownload.speed = _fileDownloadInfo.chunks.reduce((l, c)=>(l + c), 0);
+                    _process.currentSpeed = _fileDownloadInfo.chunks.reduce((l, c)=>(l + c), 0);
+                    _process.emit('speedChanged', _process.currentSpeed);
                     _fileDownloadInfo.chunks = [];
                 }, 1000);
+
+                _process.emit('stateChanged', FileDownloadProcessState.Started);
+
 
                 threads.forEach((thread: FileDownloadThread) => {
 
                     thread.on('progress', (p: number) => {
-                        if (_fileDownloadInfo.downloadedLength === 0)_process.emit('DownloadStarted');
+                        if (_fileDownloadInfo.downloadedLength === 0) _process.emit('stateChanged', FileDownloadProcessState.Progress);
                         _fileDownloadInfo.downloadedLength += p;
                         _fileDownloadInfo.chunks.push(p);
-                        _newFileDownload.progress = 100 * (_fileDownloadInfo.downloadedLength / fileLength);
 
-                        _process.emit('DownloadProgress', _newFileDownload.progress);
+                        _process.progress = 100 * (_fileDownloadInfo.downloadedLength / fileLength);
+                        _process.emit('progressChanged', _process.progress);
                     });
 
                     thread.on('finish', () => {
                         _fileDownloadInfo.processesFinished++;
                         if (_fileDownloadInfo.processesFinished === numberOfThreads) {
-                            _process.emit('DownloadFinish');
-                            _newFileDownload.state = FileDownloadState.Ended;
+                            _process.emit('stateChanged', FileDownloadProcessState.Ended);
                             clearInterval(_downloadSpeedCalculator);
                         }
                     });

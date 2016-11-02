@@ -6,6 +6,7 @@ import {fileRepository} from "../data/repositories/Files/fileRepository";
 import {Downloader} from "../lib/Downloader/Downloader";
 import {FileDownloadState} from "../domain/Files/FileDownload";
 import {File} from "../domain/Files/Index";
+import {FileDownloadProcessState} from "../lib/Downloader/Entities/FileDownloadProcess";
 
 var httpServer = http.createServer();
 
@@ -50,19 +51,26 @@ io.on('connection', (socket: SocketIOClient.Socket) => {
                 }
             };
 
-            _process.on('DownloadStarted', () => {
-                _file.download.state = FileDownloadState.Init;
-                fileRepository.save(_file);
+            _process.on('stateChanged', (state)=>{
+                if(state === FileDownloadProcessState.Started){
+                    _file.name = _process.file.fileName;
+                    _file.download.state = FileDownloadState.Progress;
+                    fileRepository.save(_file);
+                }
+                if(state === FileDownloadProcessState.Ended){
+                    _file.download.state = FileDownloadState.Ended;
+                }
             });
 
-            _process.on('DownloadFinish', () => {
-                _file.download.state = FileDownloadState.Ended;
+            _process.on('progressChanged', (progress)=>{
+                console.log(progress);
+                _file.download.progress = progress;
             });
 
-            _process.on("DownloadProgress", (p) => {
-                _file.download.state = FileDownloadState.Progress;
-                _file.download.progress = p;
+            _process.on('speedChanged', (speed)=>{
+                _file.download.speed = speed;
             });
+
         }
     });
 
