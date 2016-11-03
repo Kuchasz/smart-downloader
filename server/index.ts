@@ -43,7 +43,7 @@ io.on('connection', (socket: SocketIOClient.Socket) => {
             const _file: File = {
                 id: d.id,
                 length: 0,
-                name: `some-random-name-here-${Math.random()}`,
+                name: '',
                 download: {
                     state: FileDownloadState.Init,
                     progress: 0,
@@ -54,6 +54,7 @@ io.on('connection', (socket: SocketIOClient.Socket) => {
             _process.on('stateChanged', (state)=>{
                 if(state === FileDownloadProcessState.Started){
                     _file.name = _process.file.fileName;
+                    _file.length = _process.file.length;
                     _file.download.state = FileDownloadState.Progress;
                     fileRepository.save(_file);
                 }

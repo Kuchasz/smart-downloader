@@ -1,5 +1,4 @@
 import {getDownloadService} from './Services/DownloadServiceProvider';
-import {FileDownload, FileDownloadState} from "../../domain/Files/FileDownload";
 import {FileDownloadThread} from "./Entities/FileDownloadThread";
 import {writeFile, write, open} from "fs";
 import {IncomingMessage} from "http";
@@ -7,11 +6,9 @@ import {ClientRequest} from "http";
 import {request} from "http";
 import {ftruncate} from "fs";
 import {File} from './Entities/File';
-import {FileDownloadProcess, FileDownloadProcessEvent, FileDownloadProcessState} from "./Entities/FileDownloadProcess";
+import {FileDownloadProcess, FileDownloadProcessState} from "./Entities/FileDownloadProcess";
 
 export class Downloader {
-
-    private fileNameTest = /\.dmd$/;
 
     constructor() {
     }
@@ -27,20 +24,17 @@ export class Downloader {
             chunks: []
         };
 
-        //should not use domain objects, create downloader-lib objects
-        // const _newFileDownload: FileDownload = {speed: 0, progress: 0, state: FileDownloadState.Init};
-        // const _newFile: File = {id, name: _getFileNameFromUrl(url), download: _newFileDownload, length: 0};
         const _newFile = new File(url);
 
         let fileLength, fileName = _newFile.fileName;
 
-        // fileRepository.save(_newFile);
         const _process = new FileDownloadProcess(_newFile);
         _process.emit('stateChanged', FileDownloadProcessState.GettingInfo);
 
         this._getRemoteFileLength(url)
             .then(length => {
                 fileLength = length;
+                _newFile.length = fileLength;
                 _process.emit('stateChanged', FileDownloadProcessState.Initialisation);
                 return this._createLocalFile(fileName)
             })

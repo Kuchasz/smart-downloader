@@ -27,14 +27,14 @@ export class FileDownloadProcess extends EventEmitter {
     emit(event: 'stateChanged', state: FileDownloadProcessState);
     emit(event: 'speedChanged', speed: number);
     emit(event: 'progressChanged', progress: number);
-    emit(event: string, ...args: any[]): boolean {
+    emit(event: FileDownloadProcessEvent, ...args: any[]): boolean {
         return super.emit(event, ...args);
     };
 
     on(event: 'stateChanged', listener: (state: FileDownloadProcessState) => void);
     on(event: 'speedChanged', listener: (speed: number) => void);
     on(event: 'progressChanged', listener: (progress: number) => void);
-    on(event: string, listener: Function): this {
+    on(event: FileDownloadProcessEvent, listener: Function): this {
         return <this>super.on(event, listener);
     }
 }
