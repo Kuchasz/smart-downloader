@@ -1,4 +1,4 @@
-import * as http from "http";
+import {createServer} from "http";
 import * as socketIO from "socket.io";
 
 import {fileRepository} from "../data/repositories/Files/fileRepository";
@@ -6,15 +6,15 @@ import {fileRepository} from "../data/repositories/Files/fileRepository";
 import {Downloader} from "../lib/Downloader/Downloader";
 import {FileDownloadState} from "../domain/Files/FileDownload";
 import {File} from "../domain/Files/Index";
-import {FileDownloadProcessState} from "../lib/Downloader/Entities/FileDownloadProcess";
+import {FileDownloadProcessState} from "../lib/Downloader/Entities/FileDownloadProcessState";
 
-var httpServer = http.createServer();
+var _httpServer = createServer();
 
-httpServer.listen({
+_httpServer.listen({
     port: 8081
 });
 
-const io = socketIO(httpServer);
+const _socketIoServer = socketIO(_httpServer);
 
 const _downloader = new Downloader();
 
@@ -31,7 +31,7 @@ setInterval(() => {
     });
 }, 250);
 
-io.on('connection', (socket: SocketIOClient.Socket) => {
+_socketIoServer.on('connection', (socket: SocketIOClient.Socket) => {
     console.log(`User connected: ${socket.id}`);
     const _client = {socket};
 
@@ -39,7 +39,7 @@ io.on('connection', (socket: SocketIOClient.Socket) => {
 
     socket.on('message', (d)=> {
         if (d.type === 'ADD_FILE') {
-            const _process = _downloader.download(d.url, d.id, 5);
+            const _process = _downloader.download(d.url, 5);
             const _file: File = {
                 id: d.id,
                 length: 0,

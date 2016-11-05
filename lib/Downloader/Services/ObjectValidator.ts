@@ -4,4 +4,4 @@ export const checkExclusiveProperties = (obj, ...properties): boolean => {
 		if (obj[p] != undefined)propCount++;
 	});
 	return propCount == 1;
-}
+};

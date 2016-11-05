@@ -1,0 +1,1 @@
+export type FileDownloadProcessEvent = 'stateChanged'| 'speedChanged'| 'progressChanged';

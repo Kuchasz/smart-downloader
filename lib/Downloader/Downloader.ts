@@ -1,22 +1,17 @@
-import {getDownloadService} from './Services/DownloadServiceProvider';
 import {FileDownloadThread} from "./Entities/FileDownloadThread";
-import {writeFile, write, open} from "fs";
-import {IncomingMessage} from "http";
-import {ClientRequest} from "http";
-import {request} from "http";
-import {ftruncate} from "fs";
+import {ftruncate, writeFile, write, open} from "fs";
 import {File} from './Entities/File';
-import {FileDownloadProcess, FileDownloadProcessState} from "./Entities/FileDownloadProcess";
+import {FileDownloadProcess} from "./Entities/FileDownloadProcess";
+import {ClientRequest, IncomingMessage} from "http";
+import {request} from "./Services/HttpRequest";
+import {FileDownloadProcessState} from "./Entities/FileDownloadProcessState";
 
 export class Downloader {
 
     constructor() {
     }
 
-    download(url: string, id: number, numberOfThreads: number): FileDownloadProcess {
-
-        const _downloadService = getDownloadService(url);
-
+    download(url: string, numberOfThreads: number): FileDownloadProcess {
         const _fileDownloadInfo = {
             fd: 0,
             downloadedLength: 0,
@@ -26,7 +21,9 @@ export class Downloader {
 
         const _newFile = new File(url);
 
-        let fileLength, fileName = _newFile.fileName;
+        let fileLength, localFilePath = this._createLocalFilePath(_newFile.fileName, 'downloads');
+
+        console.log(localFilePath);
 
         const _process = new FileDownloadProcess(_newFile);
         _process.emit('stateChanged', FileDownloadProcessState.GettingInfo);
@@ -36,9 +33,9 @@ export class Downloader {
                 fileLength = length;
                 _newFile.length = fileLength;
                 _process.emit('stateChanged', FileDownloadProcessState.Initialisation);
-                return this._createLocalFile(fileName)
+                return this._createLocalFile(localFilePath)
             })
-            .then(() => this._openLocalFile(fileName))
+            .then(() => this._openLocalFile(localFilePath))
             .then(fd => {
                 _fileDownloadInfo.fd = fd;
                 return this._resizeLocalFile(_fileDownloadInfo.fd, fileLength);
@@ -64,6 +61,7 @@ export class Downloader {
                         _fileDownloadInfo.chunks.push(p);
 
                         _process.progress = 100 * (_fileDownloadInfo.downloadedLength / fileLength);
+                        console.log(_fileDownloadInfo.downloadedLength, fileLength);
                         _process.emit('progressChanged', _process.progress);
                     });
 
@@ -78,6 +76,10 @@ export class Downloader {
             });
         return _process;
     };
+
+    private _createLocalFilePath(fileName: string, dirName: string): string{
+        return `${dirName}/${fileName}`;
+    }
 
     private _getLengthFromHeaders(headers: any): Promise<number> {
         return new Promise<number>((resolve, reject)=> {
@@ -124,15 +126,17 @@ export class Downloader {
         const _req = request(url);
 
         _req.once('response', (msg: IncomingMessage)=> {
-            let currentPosition: number = thread.start;
+            let _downloadPosition: number = thread.start;
+            let _writePosition: number = thread.start;
 
             thread.emit('start');
             msg.on('data', (downloadBuffer: Buffer)=> {
-                write(thread.fd, downloadBuffer, 0, downloadBuffer.length, currentPosition, (err, length, saveBuffer)=> {
+                write(thread.fd, downloadBuffer, 0, downloadBuffer.length, _downloadPosition, (err, length, writeBuffer)=> {
+                    thread.emit('progress', writeBuffer.length);
+                    _writePosition += writeBuffer.length;
+                    if (_writePosition - 1 === thread.end)thread.emit('finish');
                 });
-                currentPosition += downloadBuffer.length;
-                thread.emit('progress', downloadBuffer.length);
-                if (currentPosition - 1 === thread.end)thread.emit('finish');
+                _downloadPosition += downloadBuffer.length;
             });
 
         });
@@ -171,7 +175,6 @@ export class Downloader {
         return new Promise<FileDownloadThread[]>((resolve) => {
             const perProcessLength = Math.floor(fileLength / processesCount);
             const processes = Array.from(Array(processesCount)).map((v, i)=> {
-                // return new FileDownloadThread(i * perProcessLength, i == (processesCount - 1) ? fileLength : (i + 1) * perProcessLength - 1, fd)
                 const _start = i * perProcessLength;
                 const _end = (i === perProcessLength) ? fileLength : ((i + 1) * perProcessLength - 1);
                 return new FileDownloadThread(_start, _end, fd)

@@ -1,20 +1,19 @@
 import {UrlNotSupportedException} from "../Exceptions/UrlNotSupportedException";
-import * as _http from 'http';
-import * as _https from 'https';
-import {ClientRequest} from "http";
+import {ClientRequest, request as httpRequest} from 'http';
+import {request as httpsRequest} from 'https';
 
-const serviceProviders = [
+const requestProviders = [
   {
     regExp: /^http:\/\/.+/,
-    service: _http
+    request: httpRequest
   },
   {
     regExp: /^https:\/\/.+/,
-    service: _https
+    request: httpsRequest
   }];
 
-export const getDownloadService = (url): ClientRequest  => {
-    const serviceProvider = serviceProviders.find(s => s.regExp.test(url));
+export const request = (url: string): ClientRequest  => {
+    const serviceProvider = requestProviders.find(s => s.regExp.test(url));
     if(!serviceProvider) throw new UrlNotSupportedException();
-    return serviceProvider.service.request(url);
+    return serviceProvider.request(url);
 };

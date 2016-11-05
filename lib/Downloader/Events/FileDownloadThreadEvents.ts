@@ -1,0 +1,1 @@
+export type FileDownloadThreadEvent = 'start' | 'progress' | 'finish';

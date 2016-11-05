@@ -1,16 +1,7 @@
 import {EventEmitter} from "events";
 import {File} from './File';
-
-export enum FileDownloadProcessState{
-    Waiting,
-    GettingInfo,
-    Initialisation,
-    Started,
-    Progress,
-    Ended
-}
-
-export type FileDownloadProcessEvent = 'stateChanged'| 'speedChanged'| 'progressChanged';
+import {FileDownloadProcessEvent} from "../Events/FileDownloadProcessEvents";
+import {FileDownloadProcessState} from "./FileDownloadProcessState";
 
 export class FileDownloadProcess extends EventEmitter {
 
