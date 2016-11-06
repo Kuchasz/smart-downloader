@@ -15,7 +15,9 @@ import {Header} from './src/views/Header/Header';
 
 import {Files as FilesReducers} from './src/Reducers/Files';
 import {applyMiddleware} from "redux";
-import {scopedActionMiddleware} from "../communication/Middleware/ScopedActionMiddleware";
+import {socketActionMiddleware} from "../lib/redux-socket/SocketMiddleware";
+
+import {connect} from 'socket.io-client';
 
 const reducers = combineReducers({
 	files: FilesReducers
@@ -23,7 +25,7 @@ const reducers = combineReducers({
 
 const store = createStore(
 	reducers,
-	applyMiddleware(scopedActionMiddleware('http://localhost:8081'))
+	applyMiddleware(socketActionMiddleware(connect('http://localhost:8081')))
 );
 
 render(
