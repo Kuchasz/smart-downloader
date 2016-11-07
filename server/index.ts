@@ -7,6 +7,7 @@ import {Downloader} from "../lib/Downloader/Downloader";
 import {FileDownloadState} from "../domain/Files/FileDownload";
 import {File} from "../domain/Files/Index";
 import {FileDownloadProcessState} from "../lib/Downloader/Entities/FileDownloadProcessState";
+import {Crawler} from "../lib/fs-crawler/Crawler";
 
 var _httpServer = createServer();
 
@@ -36,6 +37,9 @@ _socketIoServer.on('connection', (socket: SocketIOClient.Socket) => {
     const _client = {socket};
 
     _connectedClients.push(_client);
+
+    const _crawler = new Crawler();
+    _crawler.getFiles(__dirname).then(x => console.log(x));
 
     socket.on('message', (d)=> {
         if (d.type === 'ADD_FILE') {
