@@ -1,6 +1,7 @@
 import {MiddlewareAPI, Dispatch} from 'redux';
-import {SocketAction, ActionScope} from "./SocketAction";
+import {SocketAction} from "./SocketAction";
 import {Socket} from "./Socket";
+import {ActionScope} from "./ActionScope";
 
 interface State {
 }
@@ -17,12 +18,12 @@ export const socketActionMiddleware =
                             store.dispatch(Object.assign({}, a, {scope: ActionScope.Local}));
                         });
                     }
-                    if (action.scope === ActionScope.Local) return next(action);
-                    if (action.scope === ActionScope.Remote) socket.send(action);
-                    if (action.scope === ActionScope.Both) {
+                    if (action.scope === ActionScope.Local) return next(action)
+                    else if (action.scope === ActionScope.Remote)
+                        socket.send(action)
+                    else if (action.scope === ActionScope.Both) {
                         socket.send(action);
                         return next(action);
-                    }
-                    return next(action);
+                    } else return next(action);
                 };
     };
