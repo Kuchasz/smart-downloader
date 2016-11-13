@@ -5,4 +5,3 @@ export interface SocketAction extends Action {
     type: string;
     scope: ActionScope;
 }
-
