@@ -7,7 +7,6 @@ export const checkFileTypeAsync = (path: string): Promise<FileType> => (
     new Promise<FileType>((res, rej)=> {
         stat(path, (err, stats)=> {
             err && rej();
-            console.log(stats, path);
             res(getFileType(stats));
         });
     }));

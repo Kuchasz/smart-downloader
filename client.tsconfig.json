@@ -4,7 +4,9 @@
     "target": "es5",
     "sourceMap": false,
     "jsx": "react",
-    "outDir": "./build"
+    "outDir": "./build",
+    "noUnusedLocals": true,
+    "noUnusedParameters": true
   },
   "include": [
     "domain/**/*",

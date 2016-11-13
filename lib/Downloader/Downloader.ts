@@ -81,7 +81,7 @@ export class Downloader {
         return `${dirName}/${fileName}`;
     }
 
-    private _getLengthFromHeaders(headers: any): Promise<number> {
+    private _getLengthFromHeaders(headers: {[x: string]: string}): Promise<number> {
         return new Promise<number>((resolve, reject)=> {
             try {
                 const length = parseInt(headers['content-range'].split('/')[1]);
@@ -103,7 +103,7 @@ export class Downloader {
     };
 
     private _handleRequestError(request: ClientRequest): Promise<Error> {
-        return new Promise<Error>((resolve, reject)=> {
+        return new Promise<Error>((resolve)=> {
             request.once('error', (err)=> {
                 resolve(err);
             });
@@ -131,7 +131,7 @@ export class Downloader {
 
             thread.emit('start');
             msg.on('data', (downloadBuffer: Buffer)=> {
-                write(thread.fd, downloadBuffer, 0, downloadBuffer.length, _downloadPosition, (err, length, writeBuffer)=> {
+                write(thread.fd, downloadBuffer, 0, downloadBuffer.length, _downloadPosition, (_err, _length, writeBuffer)=> {
                     thread.emit('progress', writeBuffer.length);
                     _writePosition += writeBuffer.length;
                     if (_writePosition - 1 === thread.end)thread.emit('finish');
@@ -174,7 +174,7 @@ export class Downloader {
     private _createDownloadThreads(fd: number, fileLength: number, processesCount: number = 5): Promise<FileDownloadThread[]> {
         return new Promise<FileDownloadThread[]>((resolve) => {
             const perProcessLength = Math.floor(fileLength / processesCount);
-            const processes = Array.from(Array(processesCount)).map((v, i)=> {
+            const processes = Array.from(Array(processesCount)).map((_v, i)=> {
                 const _start = i * perProcessLength;
                 const _end = (i === perProcessLength) ? fileLength : ((i + 1) * perProcessLength - 1);
                 return new FileDownloadThread(_start, _end, fd)
