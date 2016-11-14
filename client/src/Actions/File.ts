@@ -1,28 +1,26 @@
 import {ActionCreator} from "redux";
 import {File, FileDownload} from "../../../domain/Files/Index";
 import {ActionScope} from "../../../lib/redux-socket/ActionScope";
-import {
-    AddFileActionType, RemoveFileActionType, FinishFileDownloadActionType,
-    UpdateFilesActionType, UpdateFilesActionTypeConst
-} from "../ActionTypes/File";
+import {AddFileActionType, RemoveFileActionType, FinishFileDownloadActionType, UpdateFilesActionType} from "../ActionTypes/File";
+import {SocketAction} from "../../../lib/redux-socket/SocketAction";
 
-export type AddFileAction = {
+export interface AddFileAction extends SocketAction {
     type: AddFileActionType;
     id: number;
     url: string;
 }
 
-export type RemoveFileAction = {
+export interface RemoveFileAction extends SocketAction {
     type: RemoveFileActionType;
     id: number;
 }
 
-export type FinishFileDownloadAction = {
+export interface FinishFileDownloadAction extends SocketAction {
     type: FinishFileDownloadActionType;
     id: number;
 }
 
-export type UpdateFilesAction = {
+export interface UpdateFilesAction extends SocketAction {
     type: UpdateFilesActionType;
     files: File[];
     fileDownloads: FileDownload[];
@@ -37,10 +35,11 @@ class FileActionCreators {
     });
     createRemoveFileAction: ActionCreator<RemoveFileAction> = (id: number) => ({
         type: RemoveFileActionType,
+        scope: ActionScope.Local,
         id
     });
     createUpdateFilesAction: ActionCreator<UpdateFilesAction> = (files: File[], fileDownloads: FileDownload[]) => ({
-        type: UpdateFilesActionTypeConst,
+        type: UpdateFilesActionType,
         scope: ActionScope.Local,
         files,
         fileDownloads

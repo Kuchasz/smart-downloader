@@ -1,12 +1,8 @@
 import {fileActions} from "../Actions/File";
-import {UpdateFilesActionTypeConst} from "../ActionTypes/File";
+import {UpdateFilesActionType} from "../ActionTypes/File";
 export function Files(state = [], action: fileActions) {
 	switch (action.type) {
-		case UpdateFilesActionTypeConst: {
-            // action.
-            // action.
-            break;
-		}
+		case UpdateFilesActionType: return action.files;
 		default:
 			return state;
 	}
