@@ -1,7 +1,6 @@
 import {IAction} from "./IAction";
-import {IFetchAction} from "./IFetchAction";
+import {IActionResult} from "./IActionResult";
 
 export interface IActionRunner{
-    run(action: IAction): void;
-    run<TResult>(action: IFetchAction<TResult>): TResult;
+    run(action: IAction): IActionResult;
 }

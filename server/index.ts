@@ -8,6 +8,9 @@ import {FileDownloadState} from "../domain/Files/FileDownload";
 import {File} from "../domain/Files/Index";
 import {FileDownloadProcessState} from "../lib/Downloader/Entities/FileDownloadProcessState";
 import {Crawler} from "../lib/fs-crawler/Crawler";
+import {IActionRunner} from "../lib/lerfex/IActionRunner";
+import {ActionRunner} from "../lib/lerfex/server/ActionRunner";
+import {AddFileAction} from "../messages/Files/actions/AddFileAction";
 
 var _httpServer = createServer();
 
@@ -24,6 +27,9 @@ interface ConnectedClient {
 }
 
 const _connectedClients: ConnectedClient[] = [];
+
+var _actionRunner: IActionRunner = new ActionRunner([]);
+_actionRunner.run(new AddFileAction('http://mega.co?file=0g8f7-ces32-2df32-sw26h-kl75g'));
 
 setInterval(() => {
     const _progressMessage = Object.assign({}, {files: fileRepository.getAll()}, {type: 'UPDATE_FILES'});
@@ -75,7 +81,6 @@ _socketIoServer.on('connection', (socket: SocketIOClient.Socket) => {
             _process.on('speedChanged', (speed)=>{
                 _file.download.speed = speed;
             });
-
         }
     });
 

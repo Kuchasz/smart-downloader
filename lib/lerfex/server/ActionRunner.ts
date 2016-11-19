@@ -1,29 +1,26 @@
 import {IActionHandler} from "../IActionHandler";
 import {IActionRunner} from "../IActionRunner";
 import {IAction} from "../IAction";
-import {IFetchAction} from "../IFetchAction";
 import {getNameFromFunction} from "../services/FunctionNameAccessor";
+import {IActionResult} from "../IActionResult";
 
-interface INamedActionHandler{
-    $name: string;
-    $handler: IActionHandler;
+interface INamedActionHandler {
+    $type: string;
+    $handler: {new(): IActionHandler<IAction>};
 }
 
 export class ActionRunner implements IActionRunner {
     private _handlers: INamedActionHandler[];
-    constructor(handlers: {new(): IActionHandler}[]) {
+
+    constructor(handlers: {new(): IActionHandler<IAction>}[]) {
         this._handlers = handlers.map(h => ({
-            $name: getNameFromFunction(h),
-            $handler: IActionHandler
+            $type: getNameFromFunction(h),
+            $handler: h
         }));
     }
 
-    run(action: IAction): void {
-        var _handler = this._handlers.filter(h => h.$name === action.$name);
-        console.log(_handler);
-    }
-
-    run<TResult>(action: IFetchAction<TResult>): TResult {
+    run(action: IAction): IActionResult {
+        console.log(action.$type);
         return undefined;
     }
 }
