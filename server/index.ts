@@ -1,16 +1,21 @@
 import {createServer} from "http";
 import * as socketIO from "socket.io";
 
-import {fileRepository} from "../data/repositories/Files/fileRepository";
-
 import {Downloader} from "../lib/Downloader/Downloader";
 import {FileDownloadState} from "../domain/Files/FileDownload";
-import {File} from "../domain/Files/Index";
 import {FileDownloadProcessState} from "../lib/Downloader/Entities/FileDownloadProcessState";
 import {Crawler} from "../lib/fs-crawler/Crawler";
-import {IActionRunner} from "../lib/lerfex/IActionRunner";
-import {ActionRunner} from "../lib/lerfex/server/ActionRunner";
+import {IActionRunner} from "../lib/lefrex/IActionRunner";
+import {ActionRunner} from "../lib/lefrex/server/ActionRunner";
 import {AddFileAction} from "../messages/Files/actions/AddFileAction";
+import FileRepository from "../data/repositories/Files/FileRepository";
+import {AddFileActionHandler} from "../domain/Files/ActionHandlers/AddFileActionHandler";
+import {UpdateFileDownloadStateAction} from "../messages/Files/actions/UpdateFileDownloadStateAction";
+import {UpdateFileDownloadStateActionHandler} from "../domain/Files/ActionHandlers/UpdateFileDownloadStateActionHandler";
+import {UpdateFileDownloadSpeedActionHandler} from "../domain/Files/ActionHandlers/UpdateFileDownloadSpeedActionHandler";
+import {UpdateFileDownloadProgressActionHandler} from "../domain/Files/ActionHandlers/UpdateFileDownloadProgressActionHandler";
+import {UpdateFileDownloadProgressAction} from "../messages/Files/actions/UpdateFileDownloadProgressAction";
+import {UpdateFileDownloadSpeedAction} from "../messages/Files/actions/UpdateFileDownloadSpeedAction";
 
 var _httpServer = createServer();
 
@@ -28,11 +33,15 @@ interface ConnectedClient {
 
 const _connectedClients: ConnectedClient[] = [];
 
-var _actionRunner: IActionRunner = new ActionRunner([]);
-_actionRunner.run(new AddFileAction('http://mega.co?file=0g8f7-ces32-2df32-sw26h-kl75g'));
+var _actionRunner: IActionRunner = new ActionRunner([
+    AddFileActionHandler,
+    UpdateFileDownloadStateActionHandler,
+    UpdateFileDownloadSpeedActionHandler,
+    UpdateFileDownloadProgressActionHandler
+]);
 
 setInterval(() => {
-    const _progressMessage = Object.assign({}, {files: fileRepository.getAll()}, {type: 'UPDATE_FILES'});
+    const _progressMessage = Object.assign({}, {files: FileRepository.getAll()}, {type: 'updateFilesAction'});
     _connectedClients.forEach(c => {
         c.socket.send(_progressMessage);
     });
@@ -44,42 +53,29 @@ _socketIoServer.on('connection', (socket: SocketIOClient.Socket) => {
 
     _connectedClients.push(_client);
 
-    const _crawler = new Crawler();
-    _crawler.getFiles(__dirname).then(x => console.log(x));
-
-    socket.on('message', (d)=> {
-        if (d.type === 'ADD_FILE') {
-            const _process = _downloader.download(d.url, 5);
-            const _file: File = {
-                id: d.id,
-                length: 0,
-                name: '',
-                download: {
-                    state: FileDownloadState.Init,
-                    progress: 0,
-                    speed: 0
-                }
-            };
+    socket.on('message', (action: any)=> {
+        if (action!.type === 'addFileAction') {
+            const _process = _downloader.download(action.url, 5);
 
             _process.on('stateChanged', (state)=>{
                 if(state === FileDownloadProcessState.Started){
-                    _file.name = _process.file.fileName;
-                    _file.length = _process.file.length;
-                    _file.download.state = FileDownloadState.Progress;
-                    fileRepository.save(_file);
+                    const addFileAction = new AddFileAction(action.id, action.url, _process.file.fileName, _process.file.length);
+                    _actionRunner.run(addFileAction);
                 }
                 if(state === FileDownloadProcessState.Ended){
-                    _file.download.state = FileDownloadState.Ended;
+                    const updateFileDownloadStateAction = new UpdateFileDownloadStateAction(action.id, FileDownloadState.Ended);
+                    _actionRunner.run(updateFileDownloadStateAction);
                 }
             });
 
             _process.on('progressChanged', (progress)=>{
-                console.log(progress);
-                _file.download.progress = progress;
+                const updateFileDownloadProgressAction = new UpdateFileDownloadProgressAction(action.id, progress);
+                _actionRunner.run(updateFileDownloadProgressAction);
             });
 
             _process.on('speedChanged', (speed)=>{
-                _file.download.speed = speed;
+                const updateFileDownloadSpeedAction = new UpdateFileDownloadSpeedAction(action.id, speed);
+                _actionRunner.run(updateFileDownloadSpeedAction);
             });
         }
     });

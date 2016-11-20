@@ -2,6 +2,7 @@ import {File} from "../../../domain/Files/File";
 
 export interface IFileRepository{
 	getAll(): File[];
+    get(id: number): File;
 	save(file: File): void;
 }
 
@@ -19,6 +20,11 @@ class MemoryFileRepository implements IFileRepository{
 	getAll(): File[] {
 		return this.files;
 	}
+
+	get(id: number){
+        return this.files.filter(f => f.id === id)[0];
+    }
 }
 
-export const fileRepository: IFileRepository = new MemoryFileRepository();
+const FileRepository: IFileRepository = new MemoryFileRepository();
+export default FileRepository;

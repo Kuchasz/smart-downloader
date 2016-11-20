@@ -14,13 +14,19 @@ export class ActionRunner implements IActionRunner {
 
     constructor(handlers: {new(): IActionHandler<IAction>}[]) {
         this._handlers = handlers.map(h => ({
-            $type: getNameFromFunction(h),
+            $type: this._getActionTypeFromHandlerName(getNameFromFunction(h)),
             $handler: h
         }));
     }
 
     run(action: IAction): IActionResult {
-        console.log(action.$type);
+        const handlerConstructor = this._handlers.filter(h => h.$type == action.$type)[0].$handler;
+        const handler = new handlerConstructor();
+        handler.handle(action);
         return undefined;
+    }
+
+    private _getActionTypeFromHandlerName(handlerName: string):string {
+        return handlerName.replace('Handler', '');
     }
 }
