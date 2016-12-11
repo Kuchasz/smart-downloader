@@ -10,7 +10,8 @@
   "include": [
     "domain/**/*",
     "server/**/*",
-    "typings/**/*"
+    "typings/**/*",
+    "jobs/**/*"
   ],
   "exclude": [
     "node_modules",
