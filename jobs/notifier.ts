@@ -1,14 +1,5 @@
-import {Socket} from 'net';
-
-const _client = new Socket();
-
-_client.on('connect', () => {
-    console.log('[Client] Connected to queue!')
-});
-
-_client.on('data', (data) => {
-    const _messageJson = data.toString();
-    console.log(`[Client] Received: ${_messageJson}`);
-});
-
-_client.connect(6666, 'localhost');
+import {QueueClient} from "../lib/kuku/client/QueueClient";
+import {SubscribeMessage} from "../lib/kuku/messages/SubscribeMessage";
+import {FileAddedMessage} from "../messages/Files/queueMessages/FileAddedMessage";
+const _queueClient = new QueueClient();
+_queueClient.push(new SubscribeMessage(FileAddedMessage));

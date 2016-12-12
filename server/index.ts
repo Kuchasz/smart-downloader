@@ -1,5 +1,5 @@
 import {createServer} from "http";
-import {createServer as createNetServer} from 'net';
+// import {createServer as createNetServer} from 'net';
 import {fork} from 'child_process';
 import * as socketIO from "socket.io";
 import {join} from 'path';
@@ -11,6 +11,10 @@ import {join} from 'path';
 // import {ActionRunner} from "../lib/lefrex/server/ActionRunner";
 // import {AddFileAction} from "../messages/Files/actions/AddFileAction";
 import FileRepository from "../data/repositories/Files/FileRepository";
+import {QueueHost} from "../lib/kuku/host/QueueHost";
+import {QueueClient} from "../lib/kuku/client/QueueClient";
+import {SubscribeMessage} from "../lib/kuku/messages/SubscribeMessage";
+import {FileAddedMessage} from "../messages/Files/queueMessages/FileAddedMessage";
 // import {AddFileActionHandler} from "../domain/Files/ActionHandlers/AddFileActionHandler";
 // import {UpdateFileDownloadStateAction} from "../messages/Files/actions/UpdateFileDownloadStateAction";
 // import {UpdateFileDownloadStateActionHandler} from "../domain/Files/ActionHandlers/UpdateFileDownloadStateActionHandler";
@@ -50,27 +54,32 @@ setInterval(() => {
     });
 }, 250);
 
-const _clients = [];
-const __serv = createNetServer((sock) => {
-    console.log('[Server] Client connected to queue!');
-    _clients.push(sock);
-});
+// const _clients = [];
+// const __serv = createNetServer((sock) => {
+//     console.log('[Server] Client connected to queueMessages!');
+//     _clients.push(sock);
+// });
+//
+// __serv.listen(6666, 'localhost');
 
-__serv.listen(6666, 'localhost');
+// setInterval(() => {
+//     const _ = JSON.stringify({
+//         id: Math.random(),
+//         from: 'Server'
+//     });
+//     _clients.forEach((c)=>{
+//         c.write(_);
+//     });
+// }, 100);
 
-setInterval(() => {
-    const _ = JSON.stringify({
-        id: Math.random(),
-        from: 'Server'
-    });
-    _clients.forEach((c)=>{
-        c.write(_);
-    });
-}, 100);
+const _queueHost = new QueueHost();
+_queueHost.listen();
 
 fork(join(__dirname, '../', '/jobs/notifier'));
 fork(join(__dirname, '../', '/jobs/downloader'));
 
+const _queueClient = new QueueClient();
+_queueClient.push(new SubscribeMessage(FileAddedMessage));
 // _notifier.send('message');
 // _downloader.send('message');
 
