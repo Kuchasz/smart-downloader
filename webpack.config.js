@@ -5,9 +5,9 @@ const path = require('path');
 const webpack = require('webpack');
 
 module.exports = {
-    entry: './client/index.tsx',
+    entry: path.resolve('./client/index.tsx'),
     output: {
-        path: './build/client',
+        path: path.resolve('./build/client'),
         filename: 'bundle.js'
     },
     devtool: "source-map",
@@ -15,8 +15,8 @@ module.exports = {
         rules: [
             {
                 test: /\.scss$/,
-                use: ExtractTextPlugin.extract('style', '!css!postcss!sass'),
-                include: path.resolve('client/src')
+                use: ExtractTextPlugin.extract({fallback: 'style-loader', use: 'css-loader!sass-loader'}),
+                include: path.resolve('client')
             },
             {
                 test: /\.ts(x?)$/,
@@ -25,19 +25,19 @@ module.exports = {
             },
             {
                 test: /\.html$/,
-                use: 'html',
-                include: path.resolve('client/src')
+                use: 'html-loader',
+                include: path.resolve('client')
             }
         ]
     },
-    postcss: [autoprefixer()],
     plugins: [
+        autoprefixer,
         new HtmlWebpackPlugin({
-            template: path.resolve('/src/views/index.html')
+            template: path.resolve('./client/views/index.html')
         }),
         new ExtractTextPlugin('[name].css')
     ],
     resolve: {
-        extensions: ['', '.ts', '.tsx', '.scss', '.html', '.js']
+        extensions: ['.ts', '.tsx', '.scss', '.html', '.js']
     }
 };

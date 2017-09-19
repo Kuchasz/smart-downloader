@@ -1,8 +1,8 @@
 import {ActionCreator} from "redux";
-import {File, FileDownload} from "../../../domain/Files/Index";
-import {ActionScope} from "../../../lib/redux-socket/ActionScope";
+import {File, FileDownload} from "../../domain/Files/Index";
+import {ActionScope} from "../../lib/redux-socket/ActionScope";
 import {AddFileActionType, RemoveFileActionType, FinishFileDownloadActionType, UpdateFilesActionType} from "../ActionTypes/File";
-import {SocketAction} from "../../../lib/redux-socket/SocketAction";
+import {SocketAction} from "../../lib/redux-socket/SocketAction";
 
 export interface AddFileAction extends SocketAction {
     type: AddFileActionType;

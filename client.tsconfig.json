@@ -11,8 +11,7 @@
   "include": [
     "domain/**/*",
     "client/**/*",
-    "communication/**/*",
-    "typings/**/*"
+    "communication/**/*"
   ],
   "exclude": [
     "node_modules",

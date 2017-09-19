@@ -1,4 +1,4 @@
-import {MiddlewareAPI, Dispatch} from 'redux';
+import {MiddlewareAPI, Dispatch, Action} from 'redux';
 import {SocketAction} from "./SocketAction";
 import {Socket} from "./Socket";
 import {ActionScope} from "./ActionScope";
@@ -11,19 +11,21 @@ export const socketActionMiddleware =
         let subscribed: boolean = false;
         return (store: MiddlewareAPI<State>) =>
             (next: Dispatch<State>) =>
-                (action: SocketAction): SocketAction => {
+                (action: SocketAction): Action => {
                     if (!subscribed) {
                         subscribed = true;
-                        socket.on('message', (a: SocketAction)=> {
-                            store.dispatch(Object.assign({}, a, {scope: ActionScope.Local}));
+                        socket.on('message', (a: SocketAction) => {
+                            store.dispatch({...a, scope: ActionScope.Local});
                         });
                     }
-                    if (action.scope === ActionScope.Local) return next(action)
+                    if (action.scope === ActionScope.Local)
+                        return next(action);
                     else if (action.scope === ActionScope.Remote)
-                        socket.send(action)
+                        socket.send(action);
                     else if (action.scope === ActionScope.Both) {
                         socket.send(action);
                         return next(action);
-                    } else return next(action);
+                    } else
+                        return next(action);
                 };
     };
