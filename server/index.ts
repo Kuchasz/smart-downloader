@@ -1,8 +1,8 @@
 import {createServer} from "http";
 // import {createServer as createNetServer} from 'net';
-import {fork} from 'child_process';
+// import {fork} from 'child_process';
 import * as socketIO from "socket.io";
-import {join} from 'path';
+// import {join} from 'path';
 
 // import {Downloader} from "../lib/Downloader/Downloader";
 // import {FileDownloadState} from "../domain/Files/FileDownload";
@@ -11,9 +11,8 @@ import {join} from 'path';
 // import {ActionRunner} from "../lib/lefrex/server/ActionRunner";
 // import {AddFileAction} from "../messages/Files/actions/AddFileAction";
 import FileRepository from "../data/repositories/Files/FileRepository";
-import {QueueHost} from "../lib/kuku/host/QueueHost";
-import {QueueClient} from "../lib/kuku/client/QueueClient";
-import {SubscribeMessage} from "../lib/kuku/messages/SubscribeMessage";
+import {QueueHost} from "../lib/kuku/host";
+import {QueueClient} from "../lib/kuku/client";
 import {FileAddedMessage} from "../messages/Files/queueMessages/FileAddedMessage";
 // import {AddFileActionHandler} from "../domain/Files/ActionHandlers/AddFileActionHandler";
 // import {UpdateFileDownloadStateAction} from "../messages/Files/actions/UpdateFileDownloadStateAction";
@@ -48,7 +47,7 @@ const _connectedClients: ConnectedClient[] = [];
 // ]);
 
 setInterval(() => {
-    const _progressMessage = Object.assign({}, {files: FileRepository.getAll()}, {type: 'updateFilesAction'});
+    const _progressMessage = {files: FileRepository.getAll(), type: 'updateFilesAction'};
     _connectedClients.forEach(c => {
         c.socket.send(_progressMessage);
     });
@@ -75,13 +74,20 @@ setInterval(() => {
 const _queueHost = new QueueHost();
 _queueHost.listen();
 
-fork(join(__dirname, '../', '/jobs/notifier'));
-fork(join(__dirname, '../', '/jobs/downloader'));
+// fork(join(__dirname, '../', '/jobs/notifier'));
+// fork(join(__dirname, '../', '/jobs/downloader'));
 
 const _queueClient = new QueueClient();
-_queueClient.push(new SubscribeMessage(FileAddedMessage));
-// _notifier.send('message');
-// _downloader.send('message');
+
+_queueClient.subscribe(FileAddedMessage, msg => console.log(`[Client] ${msg.file.name}`));
+
+setInterval(() => {
+    _queueClient.push(new FileAddedMessage({name: 'RandomFileName'}));
+}, 1000);
+
+// _queueClient.push(new SubscribeMessage(FileAddedMessage));
+// _notifier.send('payload');
+// _downloader.send('payload');
 
 _socketIoServer.on('connection', (socket: SocketIOClient.Socket) => {
     console.log(`User connected: ${socket.id}`);

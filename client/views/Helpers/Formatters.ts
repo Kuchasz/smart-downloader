@@ -1,4 +1,4 @@
-import {FileDownloadState} from "../../../../domain/Files/FileDownload";
+import {FileDownloadState} from "../../../domain/Files/FileDownload";
 export function formatDownloadSpeed(bytesPerSecond: number, state: FileDownloadState) {
 	if (state !== FileDownloadState.Progress)return '---';
 	if (1024 > bytesPerSecond)return `${bytesPerSecond.toFixed(2)}B/s`;

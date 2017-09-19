@@ -5,12 +5,14 @@
     "sourceMap": false,
     "outDir": "./build",
     "noUnusedLocals": true,
-    "noUnusedParameters": true
+    "noUnusedParameters": true,
+    "noImplicitAny": true,
+    "noImplicitReturns": true,
+    "noImplicitThis": true
   },
   "include": [
     "domain/**/*",
     "server/**/*",
-    "typings/**/*",
     "jobs/**/*"
   ],
   "exclude": [

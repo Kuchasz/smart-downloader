@@ -1,7 +1,7 @@
 import * as React from 'react'
 import {File as FileComponent} from './File';
 import {connect} from 'react-redux';
-import {File} from "../../../../domain/Files/Index";
+import {File} from "../../../domain/Files/Index";
 
 interface FileListProps {
 	files: File[];

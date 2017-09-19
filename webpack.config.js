@@ -12,33 +12,32 @@ module.exports = {
     },
     devtool: "source-map",
     module: {
-        loaders: [
+        rules: [
             {
                 test: /\.scss$/,
-                loader: ExtractTextPlugin.extract('style', '!css!postcss!sass'),
-                include: path.join(__dirname, 'client', 'src')
+                use: ExtractTextPlugin.extract('style', '!css!postcss!sass'),
+                include: path.resolve('client/src')
             },
             {
                 test: /\.ts(x?)$/,
-                loader: 'ts-loader?configFileName=client.tsconfig.json',
+                use: 'ts-loader?configFileName=client.tsconfig.json',
                 exclude: /node_modules/
             },
             {
                 test: /\.html$/,
-                loader: 'html',
-                include: path.join(__dirname, 'client', 'src')
+                use: 'html',
+                include: path.resolve('client/src')
             }
         ]
     },
     postcss: [autoprefixer()],
     plugins: [
         new HtmlWebpackPlugin({
-            template: './client/src/views/index.html'
+            template: path.resolve('/src/views/index.html')
         }),
         new ExtractTextPlugin('[name].css')
     ],
     resolve: {
-        extensions: ['', '.ts', '.tsx', '.scss', '.html', '.js'],
-        modulesDirectories: ['src', 'node_modules']
+        extensions: ['', '.ts', '.tsx', '.scss', '.html', '.js']
     }
-}
+};

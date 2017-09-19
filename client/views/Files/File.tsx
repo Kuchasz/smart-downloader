@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { File as FileModel, FileDownload } from "../../../../domain/Files/Index";
+import { File as FileModel, FileDownload } from "../../../domain/Files/Index";
 import {formatDownloadSpeed, formatFileDownloadStateToString} from '../Helpers/Formatters';
 
 type FileProps = FileModel & FileDownload;

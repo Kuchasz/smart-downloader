@@ -1,19 +1,19 @@
-import './src/styles/main.scss';
-import './src/views/index.html';
+import './styles/main.scss';
+import './views/index.html';
 
 import {createStore, combineReducers} from 'redux';
 import {render} from 'react-dom';
 import * as React from 'react';
 import {Provider} from 'react-redux';
 
-import {createAccounts} from './src/Data/Accounts';
+import {createAccounts} from './Data/Accounts';
 
-import {AccountList} from './src/views/Accounts/AccountList';
-import {FileList} from './src/views/Files/FileList';
-import {FileControls} from './src/views/Files/FileControls';
-import {Header} from './src/views/Header/Header';
+import {AccountList} from './views/Accounts/AccountList';
+import {FileList} from './views/Files/FileList';
+import {FileControls} from './views/Files/FileControls';
+import {Header} from './views/Header/Header';
 
-import {Files as FilesReducers} from './src/Reducers/Files';
+import {Files as FilesReducers} from './Reducers/Files';
 import {applyMiddleware} from "redux";
 import {socketActionMiddleware} from "../lib/redux-socket/SocketMiddleware";
 

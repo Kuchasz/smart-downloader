@@ -1,11 +1,11 @@
-import {QueueMessage} from "../../../lib/kuku/QueueMessage";
+import {IMessage} from "../../../lib/kuku/messages";
+
 export class File{
     constructor(public name: string){
     }
 }
-export class FileAddedMessage extends QueueMessage<File>{
+export class FileAddedMessage implements IMessage{
     $type: string = 'FileAddedMessage';
-    constructor(file: File){
-        super(file);
+    constructor(readonly file: File){
     }
 }
